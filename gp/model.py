@@ -1,8 +1,8 @@
-class GP:
-    def __init__(self, args, population=None, maxGeneration=None,
+class GPModel:
+    def __init__(self, args=None, populationSize=None, maxGeneration=None,
             mutateRate=None, eliteRate=None, crossRate=None,
-            crossType=None, verifyNum=None, proof):
-        self.population = population or args.population
+            crossType=None, verifyNum=None, proof=None):
+        self.populationSize = populationSize or args.populationSize
         self.maxGeneration = maxGeneration or args.maxGeneration
         self.mutateRate = mutateRate or args.mutateRate
         self.eliteRate = eliteRate or args.eliteRate
@@ -10,4 +10,34 @@ class GP:
         self.crossType = crossType or args.crossType
         self.verifyNum = verifyNum or args.verifyNum
         self.proof = proof
+
+    def showProp(self):
+        print(self.populationSize)
+        print(self.maxGeneration)
+        print(self.mutateRate)
+        print(self.eliteRate)
+        print(self.crossRate)
+        print(self.crossType)
+        print(self.verifyNum)
+        print(self.proof)
+
+    def initPopulation(self, populationSize):
+        pass
+
+    def initProcess(self):
+        self.currentGeneration = 0
+
+    def nextGeneration(self):
+        self.currentGeneration += 1
+
+    def start(self):
+        self.initPopulation(self.populationSize)
+        self.initProcess()
+        while (True):
+            if (self.currentGeneration > self.maxGeneration):
+                break;
+            self.calculateFitness()
+            self.cross()
+            self.mutate()
+            self.nextGeneration()
 
