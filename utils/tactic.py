@@ -1,12 +1,13 @@
 def tacticReader(tacticBase):
     tactics = []
+    repeatable = True
     for line in tacticBase:
         line = line.strip()
-        if not line.startwith("#"):
+        if not line.startswith("#"):
             for tactic in line.rstrip().split(','):
                 tactics.append((tactic, repeatable))
             repeatable = True
         else:
-            if line.startwith("#unrepeatable"):
+            if line.startswith("#unrepeatable"):
                 repeatable = False
     return tactics

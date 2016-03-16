@@ -8,7 +8,7 @@ def getArgs():
             type=argparse.FileType('w'), default=sys.stdout,
             help="a file your proof to be stored, default is stdout.")
     parser.add_argument("-b", "--tactic-base", dest='tacticBase',
-            type=open, default=None, help="a tactic base file")
+            type=open, default='tactic_base', help="a tactic base file")
     parser.add_argument("-p", "--population-size", dest='populationSize',
             type=int, default=1000, help="the population size, default is 1000")
     parser.add_argument("-g", "--max-generation", dest='maxGeneration',
