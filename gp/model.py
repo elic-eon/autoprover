@@ -3,7 +3,7 @@ from gp.gene import Gene
 class GPModel:
     def __init__(self, args=None, populationSize=None, maxGeneration=None,
             mutateRate=None, eliteRate=None, crossRate=None,
-            crossType=None, verifyNum=None, proof=None):
+            crossType=None, verifyNum=None, proof=None, tactics=None):
         self.populationSize = populationSize or args.populationSize
         self.maxGeneration = maxGeneration or args.maxGeneration
         self.mutateRate = mutateRate or args.mutateRate
@@ -12,6 +12,7 @@ class GPModel:
         self.crossType = crossType or args.crossType
         self.verifyNum = verifyNum or args.verifyNum
         self.proof = proof
+        self.tactics = tactics
 
     def showProp(self):
         print(self.populationSize)
@@ -26,7 +27,7 @@ class GPModel:
     def initPopulation(self, size):
         self.population = []
         for individual in range(size):
-            self.population.append(Gene())
+            self.population.append(Gene(self.tactics))
 
     def initProcess(self):
         self.currentGeneration = 0
