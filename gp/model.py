@@ -37,7 +37,7 @@ class GPModel:
 
     def calculateFitness(self):
         # return individual if theorem is proved, o.w return None
-        for (gene, index) in enumerate(self.population):
+        for (index, gene) in enumerate(self.population):
             (isProved, fitness) = self.proof.calculateFitness(gene.chromosome)
             gene.updateFitness(fitness)
             self.population[index] = gene
@@ -58,9 +58,14 @@ class GPModel:
             if (self.currentGeneration > self.maxGeneration):
                 break;
             self.provedIndividual = self.calculateFitness()
-            if provedIndividual is not None:
+            if self.provedIndividual is not None:
                 break;
             self.cross()
             self.mutate()
             self.nextGeneration()
 
+    def isProved(self):
+        if self.provedIndividual is None:
+            return False
+        else:
+            return True

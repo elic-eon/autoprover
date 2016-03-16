@@ -9,4 +9,4 @@ class Proof:
         return retList
 
     def calculateFitness(self, chromosome):
-        pass
+        return (False, None)
