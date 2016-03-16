@@ -1,10 +1,16 @@
+import sys
 import argparse
 
 def getArgs():
     parser = argparse.ArgumentParser(description='Autoprover')
     parser.add_argument("file", type=open, help="a theorem to be proved")
+    parser.add_argument("-o", "--output", dest='outputFile',
+            type=argparse.FileType('w'), default=sys.stdout,
+            help="a file your proof to be stored, default is stdout.")
+    parser.add_argument("-b", "--tactic-base", dest='tacticBase',
+            type=open, default=None, help="a tactic base file")
     parser.add_argument("-p", "--population-size", dest='populationSize',
-            type=int, default=1000, help="population size, default is 1000")
+            type=int, default=1000, help="the population size, default is 1000")
     parser.add_argument("-g", "--max-generation", dest='maxGeneration',
             type=int, default=100, help="a maximun generation, defalut is 100")
     parser.add_argument("-m", "--mutate-rate", dest='mutateRate',
