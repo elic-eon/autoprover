@@ -7,3 +7,6 @@ class Proof:
         for line in inputFile:
             retList.append(line.strip())
         return retList
+
+    def calculateFitness(self, chromosome):
+        pass
