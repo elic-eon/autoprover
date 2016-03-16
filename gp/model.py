@@ -23,17 +23,27 @@ class GPModel:
         print(self.verifyNum)
         print(self.proof)
 
-    def initPopulation(self, populationSize):
-        pass
+    def initPopulation(self, size):
+        self.population = []
+        for individual in range(size):
+            self.population.append(Gene())
 
     def initProcess(self):
         self.currentGeneration = 0
+        self.provedIndividual = None
 
     def nextGeneration(self):
         self.currentGeneration += 1
 
     def calculateFitness(self):
-        pass
+        # return individual if theorem is proved, o.w return None
+        for (gene, index) in enumerate(self.population):
+            (isProved, fitness) = self.proof.calculateFitness(gene.chromosome)
+            gene.updateFitness(fitness)
+            self.population[index] = gene
+            if isProved:
+                return index
+        return None
 
     def cross(self):
         pass
@@ -47,7 +57,9 @@ class GPModel:
         while (True):
             if (self.currentGeneration > self.maxGeneration):
                 break;
-            self.calculateFitness()
+            self.provedIndividual = self.calculateFitness()
+            if provedIndividual is not None:
+                break;
             self.cross()
             self.mutate()
             self.nextGeneration()
