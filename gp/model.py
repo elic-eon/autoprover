@@ -1,4 +1,4 @@
-from gene import Gene
+from gp.gene import Gene
 
 class GPModel:
     def __init__(self, args=None, populationSize=None, maxGeneration=None,
