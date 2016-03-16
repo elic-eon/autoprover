@@ -1,3 +1,5 @@
+from gene import Gene
+
 class GPModel:
     def __init__(self, args=None, populationSize=None, maxGeneration=None,
             mutateRate=None, eliteRate=None, crossRate=None,
@@ -29,6 +31,15 @@ class GPModel:
 
     def nextGeneration(self):
         self.currentGeneration += 1
+
+    def calculateFitness(self):
+        pass
+
+    def cross(self):
+        pass
+
+    def mutate(self):
+        pass
 
     def start(self):
         self.initPopulation(self.populationSize)
