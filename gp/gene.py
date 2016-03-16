@@ -1,4 +1,8 @@
 from gp.chromosome import Chromosome
 
 class Gene:
-    pass
+    def __init__(self):
+        self.chromosome = Chromosome()
+
+    def updateFitness(self, fitness):
+        pass
