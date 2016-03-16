@@ -45,7 +45,7 @@ class GPModel:
                 return index
         return None
 
-    def cross(self):
+    def crossover(self):
         pass
 
     def mutate(self):
@@ -60,7 +60,7 @@ class GPModel:
             self.provedIndividual = self.calculateFitness()
             if self.provedIndividual is not None:
                 break;
-            self.cross()
+            self.crossover()
             self.mutate()
             self.nextGeneration()
 
