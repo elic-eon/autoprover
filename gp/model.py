@@ -58,6 +58,7 @@ class GPModel:
         while (True):
             if (self.currentGeneration > self.maxGeneration):
                 break;
+            print(("Generation No.%d") % self.currentGeneration)
             self.provedIndividual = self.calculateFitness()
             if self.provedIndividual is not None:
                 break;
