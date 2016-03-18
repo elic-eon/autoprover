@@ -30,7 +30,7 @@ class GPModel:
             self.population.append(Gene(self.tactics))
 
     def initProcess(self):
-        self.currentGeneration = 0
+        self.currentGeneration = 1
         self.provedIndividual = None
 
     def nextGeneration(self):
@@ -40,6 +40,7 @@ class GPModel:
         # return individual if theorem is proved, o.w return None
         for (index, gene) in enumerate(self.population):
             (isProved, fitness) = self.proof.calculateFitness(gene.chromosome)
+            print("{0} {1}".format(index, fitness))
             gene.updateFitness(fitness)
             self.population[index] = gene
             if isProved:
@@ -56,9 +57,10 @@ class GPModel:
         self.initPopulation(self.populationSize)
         self.initProcess()
         while (True):
-            if (self.currentGeneration > self.maxGeneration):
+            # if (self.currentGeneration > self.maxGeneration):
+            if (self.currentGeneration > 1):
                 break;
-            print(("Generation No.%d") % self.currentGeneration)
+            print("Generation No.{0}".format(self.currentGeneration))
             self.provedIndividual = self.calculateFitness()
             if self.provedIndividual is not None:
                 break;
