@@ -1,3 +1,4 @@
+from eval import eval
 class Proof:
     def __init__(self, inputFile):
         self.theorem = self.readThmFromFile(inputFile)
@@ -9,4 +10,7 @@ class Proof:
         return retList
 
     def calculateFitness(self, chromosome):
-        return (False, None)
+        script = eval.preprocess(self.theorem, chromosome)
+        result = eval.runCoqtop(script)
+        return eval.evaluateResult(result)
+
