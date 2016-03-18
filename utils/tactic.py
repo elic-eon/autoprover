@@ -5,7 +5,7 @@ def tacticReader(tacticBase):
         line = line.strip()
         if not line.startswith("#"):
             for tactic in line.rstrip().split(','):
-                tactics.append((tactic, repeatable))
+                tactics.append((tactic+".", repeatable))
             repeatable = True
         else:
             if line.startswith("#unrepeatable"):
