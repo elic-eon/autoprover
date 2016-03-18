@@ -4,7 +4,6 @@ class Chromosome:
     def __init__(self, tactics):
         self.chromosome = []
         chromosomeLength = randint(4, 15)
-        print(chromosomeLength)
         for fragNum in range(chromosomeLength):
             tactic = tactics[randint(0, len(tactics)-1)]
             if len(self.chromosome) == 0:
