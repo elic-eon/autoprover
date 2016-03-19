@@ -47,11 +47,41 @@ class GPModel:
                 return index
         return None
 
-    def crossover(self):
-        pass
+    def sortPopulation(self):
+        self.population.sort(key = lambda x : x.fitness, reverse=True)
 
-    def mutate(self):
-        pass
+    def crossBelowCrossRate(self):
+        parentOneIndex = randint(
+                0, floor(self.populationSize * self.crossRate)-1)
+        parentTwoIndex = randint(
+                0, floor(self.populationSize * self.crossRate)-1)
+        geneOfParentOne = self.population[parentOneIndex]
+        geneOfParentTwo = self.population[parentTwoIndex]
+        crossPoint = randint(0, min(geneOfParentOne.chromosome.length(),
+            geneOfParentTwo.chromosome.length())-1)
+        # TODO merge class Chromosome into Gene, chromosome simply a list of
+        # tactics, no need to be a class
+        newChromosome = []
+        newChromosome += geneOfParentOne.chromosome.chromosome[:crossPoint]
+        newChromosome += geneOfParentTwo.chromosome.chromosome[crossPoint:]
+        return Gene(chromosome=newChromosome)
+
+
+    def crossover(self):
+        self.sortPopulation()
+        eliteAmount = round(self.eliteRate * self.populationSize)
+        newPopulation = [] + self.population[:eliteAmount] # not deep copy
+        for childIndex in range(eliteAmount, self.populationSize):
+            newGene = self.crossBelowCrossRate()
+            newPopulation.append(newGene)
+            if randomA() <= self.mutateRate:
+                self.mutate(newGene)
+
+        self.population = newPopulation
+
+    def mutate(self, gene):
+        gene.chromosome[randint(0, gene.length()-1)] = self.tactics[randint(
+            0, len(self.tactics)-1)]
 
     def start(self):
         self.initPopulation(self.populationSize)
@@ -65,7 +95,6 @@ class GPModel:
             if self.provedIndividual is not None:
                 break;
             self.crossover()
-            self.mutate()
             self.nextGeneration()
 
     def isProved(self):
