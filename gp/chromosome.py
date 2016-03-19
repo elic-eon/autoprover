@@ -15,3 +15,6 @@ class Chromosome:
 
     def showChromosome(self):
         print(self.chromosome)
+
+    def length(self):
+        return (len(self.chromosome))
