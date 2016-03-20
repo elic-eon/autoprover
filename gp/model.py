@@ -1,4 +1,6 @@
 from gp.gene import Gene
+from random import random, randint
+from math import floor
 
 class GPModel:
     def __init__(self, args=None, populationSize=None, maxGeneration=None,
@@ -57,13 +59,13 @@ class GPModel:
                 0, floor(self.populationSize * self.crossRate)-1)
         geneOfParentOne = self.population[parentOneIndex]
         geneOfParentTwo = self.population[parentTwoIndex]
-        crossPoint = randint(0, min(geneOfParentOne.chromosome.length(),
-            geneOfParentTwo.chromosome.length())-1)
+        crossPoint = randint(0, min(geneOfParentOne.length(),
+            geneOfParentTwo.length())-1)
         # TODO merge class Chromosome into Gene, chromosome simply a list of
         # tactics, no need to be a class
         newChromosome = []
-        newChromosome += geneOfParentOne.chromosome.chromosome[:crossPoint]
-        newChromosome += geneOfParentTwo.chromosome.chromosome[crossPoint:]
+        newChromosome += geneOfParentOne.chromosome[:crossPoint]
+        newChromosome += geneOfParentTwo.chromosome[crossPoint:]
         return Gene(chromosome=newChromosome)
 
 
