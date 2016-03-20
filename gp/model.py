@@ -42,7 +42,7 @@ class GPModel:
         # return individual if theorem is proved, o.w return None
         for (index, gene) in enumerate(self.population):
             (isProved, fitness) = self.proof.calculateFitness(gene.chromosome)
-            print("{0} {1}".format(index, fitness))
+            # print("{0} {1}".format(index, fitness))
             gene.updateFitness(fitness)
             self.population[index] = gene
             if isProved:
@@ -76,7 +76,7 @@ class GPModel:
         for childIndex in range(eliteAmount, self.populationSize):
             newGene = self.crossBelowCrossRate()
             newPopulation.append(newGene)
-            if randomA() <= self.mutateRate:
+            if random() <= self.mutateRate:
                 self.mutate(newGene)
 
         self.population = newPopulation

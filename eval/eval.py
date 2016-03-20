@@ -4,7 +4,7 @@ from subprocess import PIPE, STDOUT
 def preprocess(theorem, chromosome):
     script = [] + theorem
     script += ["Proof."]
-    script += [x[0] for x in chromosome.chromosome]
+    script += [x[0] for x in chromosome]
     script += ["Qed."]
     return script
 
