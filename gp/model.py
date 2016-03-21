@@ -1,6 +1,7 @@
 from gp.gene import Gene
 from random import random, randint
 from math import floor
+from eval import eval
 
 class GPModel:
     def __init__(self, args=None, populationSize=None, maxGeneration=None,
@@ -42,9 +43,9 @@ class GPModel:
         # return individual if theorem is proved, o.w return None
         for (index, gene) in enumerate(self.population):
             (isProved, fitness) = self.proof.calculateFitness(gene.chromosome)
-            # print("{0} {1}".format(index, fitness))
+            print("{0} {1} {2}".format(index, fitness, gene.length()))
             gene.updateFitness(fitness)
-            self.population[index] = gene
+            # self.population[index] = gene
             if isProved:
                 return index
         return None
@@ -61,13 +62,14 @@ class GPModel:
         geneOfParentTwo = self.population[parentTwoIndex]
         crossPoint = randint(0, min(geneOfParentOne.length(),
             geneOfParentTwo.length())-1)
-        # TODO merge class Chromosome into Gene, chromosome simply a list of
-        # tactics, no need to be a class
         newChromosome = []
         newChromosome += geneOfParentOne.chromosome[:crossPoint]
         newChromosome += geneOfParentTwo.chromosome[crossPoint:]
+        if (newChromosome[crossPoint][1] is False
+                and crossPoint < len(newChromosome)-1):
+            if newChromosome[crossPoint] == newChromosome[crossPoint+1]:
+                del newChromosome[crossPoint]
         return Gene(chromosome=newChromosome)
-
 
     def crossover(self):
         self.sortPopulation()
@@ -89,15 +91,21 @@ class GPModel:
         self.initPopulation(self.populationSize)
         self.initProcess()
         while (True):
-            # if (self.currentGeneration > self.maxGeneration):
-            if (self.currentGeneration > 1):
-                break;
-            print("Generation No.{0}".format(self.currentGeneration))
             self.provedIndividual = self.calculateFitness()
             if self.provedIndividual is not None:
                 break;
+            if (self.currentGeneration > self.maxGeneration):
+                break;
+            print("Generation No.{0}".format(self.currentGeneration))
             self.crossover()
             self.nextGeneration()
+        self.printGeneByIndex(0)
+
+    def printGeneByIndex(self, index):
+        script = eval.preprocess(self.proof.theorem,
+                self.population[index].chromosome)
+        for tactic in script:
+            print(tactic)
 
     def isProved(self):
         if self.provedIndividual is None:

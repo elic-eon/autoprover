@@ -24,7 +24,7 @@ def runCoqtop(script):
     return out.decode('utf-8')
 
 def evaluateResult(result):
-    validTactic = 0
+    validTactic = -2
     errorTactic = 0
     isProved = False
 
@@ -34,6 +34,8 @@ def evaluateResult(result):
             validTactic += 1
         if (line.startswith("Error: ")):
             errorTactic += 1
+            isProved = False
+            break
         if (line.startswith("Qed.")):
             isProved = True
             break
