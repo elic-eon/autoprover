@@ -14,6 +14,7 @@ class GPModel:
         self.crossRate = crossRate or args.crossRate
         self.crossType = crossType or args.crossType
         self.verifyNum = verifyNum or args.verifyNum
+        self.debug = args.debug
         self.proof = proof
         self.tactics = tactics
 
@@ -43,9 +44,8 @@ class GPModel:
         # return individual if theorem is proved, o.w return None
         for (index, gene) in enumerate(self.population):
             (isProved, fitness) = self.proof.calculateFitness(gene.chromosome)
-            print("{0} {1} {2}".format(index, fitness, gene.length()))
+            # print("{0} {1} {2}".format(index, fitness, gene.length()))
             gene.updateFitness(fitness)
-            # self.population[index] = gene
             if isProved:
                 return index
         return None
@@ -96,11 +96,15 @@ class GPModel:
             if (self.currentGeneration > self.maxGeneration):
                 break;
             print("Generation No.{0}".format(self.currentGeneration))
+            if self.debug:
+                for index in range(0, 50):
+                    self.printGeneByIndex(index)
             self.crossover()
             self.nextGeneration()
         self.printGeneByIndex(0)
 
     def printGeneByIndex(self, index):
+        print(self.population[index].fitness)
         script = eval.preprocess(self.proof.theorem,
                 self.population[index].chromosome)
         for tactic in script:
