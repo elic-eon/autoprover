@@ -27,5 +27,6 @@ def getArgs():
             type=int, default=50,
             help="number of top proofs to be verified in each generation,\
             default is 50")
+    parser.add_argument("--debug", dest='debug', action='store_true')
     args = parser.parse_args()
     return args

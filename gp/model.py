@@ -60,8 +60,8 @@ class GPModel:
                 0, floor(self.populationSize * self.crossRate)-1)
         geneOfParentOne = self.population[parentOneIndex]
         geneOfParentTwo = self.population[parentTwoIndex]
-        crossPoint = randint(0, min(geneOfParentOne.length(),
-            geneOfParentTwo.length())-1)
+        crossPoint = randint(0,
+                min(geneOfParentOne.length(),geneOfParentTwo.length())-1)
         newChromosome = []
         newChromosome += geneOfParentOne.chromosome[:crossPoint]
         newChromosome += geneOfParentTwo.chromosome[crossPoint:]
@@ -77,10 +77,9 @@ class GPModel:
         newPopulation = [] + self.population[:eliteAmount] # not deep copy
         for childIndex in range(eliteAmount, self.populationSize):
             newGene = self.crossBelowCrossRate()
-            newPopulation.append(newGene)
             if random() <= self.mutateRate:
                 self.mutate(newGene)
-
+            newPopulation.append(newGene)
         self.population = newPopulation
 
     def mutate(self, gene):
