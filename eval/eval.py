@@ -25,42 +25,48 @@ def runCoqtop(script):
     return out.decode('utf-8')
 
 def evaluateResult(result, theoremName):
-    validTactic = -3
+    validTactic = -1
     errorTactic = 0
     isProved = False
 
     totalSteps = splitCoqtopResult(result, theoremName)
-    print(totalSteps)
 
-    return (False, 1)
-
-    for line in result.split("\n"):
-        line = line.strip()
-        print(line)
-        if (line.startswith("============================")):
+    for (i, step) in enumerate(totalSteps):
+        if (i == 0):
             validTactic += 1
-        if (line.startswith("Error: ")):
-            if (line.startswith("Error: No such unproven subgoal")):
-                isProved = True
+            continue
+        if checkPrevState(totalSteps, i):
+            if hasError(step):
                 break
             else:
-                errorTactic += 1
-                isProved = False
-                break
-        if (line.startswith("Qed.")):
-            isProved = True
+                validTactic += 1
+        else:
             break
+
     return (isProved, validTactic)
+
+def checkPrevState(totalSteps, curIdx):
+    for i in range(curIdx):
+        if totalSteps[curIdx] == totalSteps[i]:
+            return False
+    else:
+        return True
+
+def hasError(step):
+    for line in step:
+        if line.startswith("Error:"):
+            return True
+    else:
+        return False
 
 def splitCoqtopResult(result, theoremName):
     totalSteps = []
     step = []
     state = "begin"
     spliter = theoremName + " <"
-    print(spliter)
+
     for line in result.split("\n"):
         line = line.strip()
-        # print(line)
         if state == "begin":
             if line.startswith(spliter):
                 state = "start"
@@ -74,12 +80,5 @@ def splitCoqtopResult(result, theoremName):
                 step.append(line)
     else:
         totalSteps.append(step)
-    i = 0
-    for s in totalSteps:
-        print(i)
-        for l in s:
-            print(l)
-        i += 1
-        print("")
-    exit(1)
+
     return totalSteps
