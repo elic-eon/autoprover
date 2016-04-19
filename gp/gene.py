@@ -14,7 +14,7 @@ class Gene:
     def randomChromosome(self, tactics):
         chromosome = []
         chromosomeLength = randint(4, 15)
-        for fragNum in range(chromosomeLength):
+        for fragNum in range(15):
             tactic = tactics[randint(0, len(tactics)-1)]
             if len(chromosome) == 0:
                 chromosome.append(tactic)
