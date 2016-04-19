@@ -1,0 +1,26 @@
+# induction
+induction n,induction k,induction m
+induction H,induction IHn
+induction H0,induction H1
+
+# refine
+refine (conj _ _)
+refine (or_introl _),refine (or_intror _)
+
+# exact
+exact H,exact I,exact H0
+
+# destruct
+destruct H,destruct H0,destruct H1
+
+# unfold
+unfold iff,unfold not
+
+# Hypothesis
+reflexivity
+rewrite H,rewrite H0
+rewrite <- H,rewrite <- H0
+#elim n,elim m,elim k
+
+#unrepeatable tactics
+simpl,trivial
