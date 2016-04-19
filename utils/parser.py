@@ -28,5 +28,6 @@ def getArgs():
             help="number of top proofs to be verified in each generation,\
             default is 50")
     parser.add_argument("--debug", dest='debug', action='store_true')
+    parser.add_argument("--brute-force", dest='bruteForce', action='store_true')
     args = parser.parse_args()
     return args
