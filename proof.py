@@ -20,3 +20,40 @@ class Proof:
         result = eval.runCoqtop(script)
         return eval.evaluateResult(result, self.theoremName)
 
+def bruteForceSearch(proof, tactics):
+    pool = [([x],1) for x in tactics]
+
+    poolBuf = []
+    for (tacticList, steps) in pool:
+        script = eval.preprocess(proof.theorem, tacticList)
+        result = eval.runCoqtop(script)
+        s = eval.evaluateResult(result, proof.theoremName)
+        if s[1] > steps:
+            poolBuf += [(tacticList, s[1])]
+    else:
+        pool = [] + poolBuf
+        poolBuf = []
+
+    # while (True):
+    for i in range(10):
+        for (tacticList, steps) in pool:
+            poolBuf += [(tacticList+[x], steps) for x in tactics]
+        else:
+            pool = [] + poolBuf
+            poolBuf = []
+
+        for (tacticList, steps) in pool:
+            script = eval.preprocess(proof.theorem, tacticList)
+            result = eval.runCoqtop(script)
+            s = eval.evaluateResult(result, proof.theoremName)
+            if s[0] is True:
+                print("Found")
+                return
+            elif s[1] > steps:
+                poolBuf += [(tacticList, s[1])]
+        else:
+            pool = [] + poolBuf
+            poolBuf = []
+
+        print(len(pool))
+
