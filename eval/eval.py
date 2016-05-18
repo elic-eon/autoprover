@@ -24,9 +24,11 @@ def runCoqtop(script):
 
     return out.decode('utf-8')
 
-def evaluateResult(result, theoremName):
+def evaluateResult(result, theoremName, errorThreshold = 0,
+        uselessThreshold = 0):
     validTactic = -1
     errorTactic = 0
+    uselessTactic = 0
     isProved = False
 
     totalSteps = splitCoqtopResult(result, theoremName)
@@ -35,13 +37,17 @@ def evaluateResult(result, theoremName):
         if (i == 0):
             validTactic += 1
             continue
-        if checkPrevState(totalSteps, i):
+        if checkPrevState(totalSteps, i) is True:
             if hasError(step):
-                break
+                errorTactic += 1
             else:
                 validTactic += 1
         else:
+            uselessTactic += 1
+        if errorTactic > errorThreshold or uselessTactic > uselessThreshold:
             break
+        if noMoreGoal(step):
+            return (True, validTactic)
 
     return (isProved, validTactic)
 
@@ -59,6 +65,15 @@ def hasError(step):
     else:
         return False
 
+def noMoreGoal(step):
+    for line in step:
+        if line.startswith("Error: No such unproven subgoal"):
+            return True
+        if line.find("No more subgoals.") > -1:
+            return True
+    else:
+        return False
+
 def splitCoqtopResult(result, theoremName):
     totalSteps = []
     step = []
@@ -70,12 +85,12 @@ def splitCoqtopResult(result, theoremName):
         if state == "begin":
             if line.startswith(spliter):
                 state = "start"
-                step = []
+                step = [line]
         else:
             if line.startswith(spliter):
                 state == "state"
                 totalSteps.append(step)
-                step = []
+                step = [line]
             else:
                 step.append(line)
     else:

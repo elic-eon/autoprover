@@ -47,6 +47,7 @@ class GPModel:
             # print("{0} {1} {2}".format(index, fitness, gene.length()))
             gene.updateFitness(fitness)
             if isProved:
+                self.printGeneByIndex(index)
                 return index
         return None
 
@@ -101,7 +102,7 @@ class GPModel:
                     self.printGeneByIndex(index)
             self.crossover()
             self.nextGeneration()
-        self.printGeneByIndex(0)
+        # self.printGeneByIndex(0)
 
     def printGeneByIndex(self, index):
         print(self.population[index].fitness)
