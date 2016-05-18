@@ -1,11 +1,19 @@
+# intros
+intros
+
 # induction
-induction n,induction k,induction m
+induction n,induction k,induction m,induction P
 induction H,induction IHn
 induction H0,induction H1
 
 # refine
 refine (conj _ _)
 refine (or_introl _),refine (or_intror _)
+refine (H _),refine (H0 _),refine (H1 _)
+refine (H _ _),refine (H0 _ _),refine (H1 _ _)
+
+# case
+case n,case H,case H0,case H1,case P
 
 # exact
 exact H,exact I,exact H0
@@ -14,7 +22,7 @@ exact H,exact I,exact H0
 destruct H,destruct H0,destruct H1
 
 # unfold
-unfold iff,unfold not
+unfold iff,unfold not,unfold not in *
 
 # Hypothesis
 reflexivity
@@ -23,4 +31,4 @@ rewrite <- H,rewrite <- H0
 #elim n,elim m,elim k
 
 #unrepeatable tactics
-simpl,trivial
+simpl in H,simpl in H0,simpl in H1,simpl,trivial
