@@ -47,11 +47,12 @@ class GPModel:
             # print("{0} {1} {2}".format(index, fitness, gene.length()))
             gene.updateFitness(fitness)
             if isProved:
-                self.printGeneByIndex(index)
+                self.printGeneByIndex(index, True)
                 return index
         return None
 
     def sortPopulation(self):
+        self.population.sort(key = lambda x : x.length(), reverse=False)
         self.population.sort(key = lambda x : x.fitness, reverse=True)
 
     def crossBelowCrossRate(self):
@@ -72,20 +73,52 @@ class GPModel:
                 del newChromosome[crossPoint]
         return Gene(chromosome=newChromosome)
 
+    def crossOnArbSeq(self):
+        parentOneIndex = randint(
+                0, floor(self.populationSize * self.crossRate)-1)
+        parentTwoIndex = randint(
+                0, floor(self.populationSize * self.crossRate)-1)
+        geneOfParentOne = self.population[parentOneIndex]
+        geneOfParentTwo = self.population[parentTwoIndex]
+        # crossPoint = randint(0,
+                # min(geneOfParentOne.length(),geneOfParentTwo.length())-1)
+        p1Begin = myrandint(0, geneOfParentOne.length()-1)
+        p1End = p1Begin + myrandint(1, geneOfParentOne.length()-p1Begin)
+        p2Begin = myrandint(0, geneOfParentTwo.length()-1)
+        p2End = p2Begin + myrandint(1, geneOfParentTwo.length()-p2Begin)
+        newChromosome = []
+        newChromosome += geneOfParentOne.chromosome[:p1Begin]
+        newChromosome += geneOfParentTwo.chromosome[p2Begin:p2End]
+        newChromosome += geneOfParentOne.chromosome[p1End:]
+        newChromosome2 = []
+        newChromosome2 += geneOfParentTwo.chromosome[:p2Begin]
+        newChromosome2 += geneOfParentOne.chromosome[p1Begin:p1End]
+        newChromosome2 += geneOfParentTwo.chromosome[p2End:]
+        # print("{0} {1} {2} {3}".format(len(geneOfParentOne.chromosome)
+            # ,len(geneOfParentTwo.chromosome), len(newChromosome), len(newChromosome2)))
+        return Gene(chromosome=newChromosome), Gene(chromosome=newChromosome2)
+
     def crossover(self):
         self.sortPopulation()
         eliteAmount = round(self.eliteRate * self.populationSize)
         newPopulation = [] + self.population[:eliteAmount] # not deep copy
-        for childIndex in range(eliteAmount, self.populationSize):
-            newGene = self.crossBelowCrossRate()
+        for childIndex in range(eliteAmount, int(self.populationSize/2)):
+            # newGene = self.crossBelowCrossRate()
+            newGene, newGene2 = self.crossOnArbSeq()
             if random() <= self.mutateRate:
                 self.mutate(newGene)
+            if random() <= self.mutateRate:
+                self.mutate(newGene2)
             newPopulation.append(newGene)
+            newPopulation.append(newGene2)
         self.population = newPopulation
 
     def mutate(self, gene):
-        gene.chromosome[randint(0, gene.length()-1)] = self.tactics[randint(
-            0, len(self.tactics)-1)]
+        if (gene.length() == 1):
+            gene.chromosome[0] = self.tactics[randint(0, len(self.tactics)-1)]
+        else:
+            gene.chromosome[randint(0, gene.length()-1)] = self.tactics[
+                    randint(0, len(self.tactics)-1)]
 
     def start(self):
         self.initPopulation(self.populationSize)
@@ -97,22 +130,32 @@ class GPModel:
             if (self.currentGeneration > self.maxGeneration):
                 break;
             print("Generation No.{0}".format(self.currentGeneration))
+            self.sortPopulation()
             if self.debug:
-                for index in range(0, 50):
-                    self.printGeneByIndex(index)
+                for index in range(0, 30):
+                    self.printGeneByIndex(index, False)
             self.crossover()
             self.nextGeneration()
-        # self.printGeneByIndex(0)
+        self.printGeneByIndex(0, True)
 
-    def printGeneByIndex(self, index):
-        print(self.population[index].fitness)
-        script = eval.preprocess(self.proof.theorem,
-                self.population[index].chromosome)
-        for tactic in script:
-            print(tactic)
+    def printGeneByIndex(self, index, printScript):
+        # print(self.population[index].fitness)
+        print("{0} {1}".format(len(self.population[index].chromosome),
+            self.population[index].fitness))
+        if (printScript):
+            script = eval.preprocess(self.proof.theorem,
+                    self.population[index].chromosome)
+            for tactic in script:
+                print(tactic)
 
     def isProved(self):
         if self.provedIndividual is None:
             return False
         else:
             return True
+
+def myrandint(a, b):
+    if a == b:
+        return a
+    else:
+        return randint(a, b)
