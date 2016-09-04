@@ -117,10 +117,10 @@ class GPModel:
 
     def mutate(self, gene):
         if (gene.length() == 1):
-            gene.chromosome[0] = self.tactics[randint(0, len(self.tactics)-1)]
+            gene.chromosome[0] = self.tactics.randomSelect()
         else:
-            gene.chromosome[randint(0, gene.length()-1)] = self.tactics[
-                    randint(0, len(self.tactics)-1)]
+            gene.chromosome[randint(0, 
+                gene.length()-1)] = self.tactics.randomSelect()
 
     def start(self):
         self.initPopulation(self.populationSize)

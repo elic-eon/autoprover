@@ -4,13 +4,13 @@ import eval, gp, utils
 from proof import Proof
 from proof import bruteForceSearch
 from utils import parser
-from utils.tactic import tacticReader
+from utils.tactic import TacticsSet
 from gp.model import GPModel
 
 if __name__ == "__main__":
     args = parser.getArgs()
     proof = Proof(args.file)
-    tactics = tacticReader(args.tacticBase)
+    tactics = TacticsSet(args.tacticBase)
 
     if args.bruteForce:
         bruteForceSearch(proof=proof, tactics=tactics)

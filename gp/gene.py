@@ -15,12 +15,13 @@ class Gene:
         chromosome = []
         chromosomeLength = randint(4, 15)
         for fragNum in range(15):
-            tactic = tactics[randint(0, len(tactics)-1)]
+            tactic = tactics.randomSelect()
             if len(chromosome) == 0:
                 chromosome.append(tactic)
             else:
-                while tactic[1] is False and (tactic == chromosome[-1]):
-                    tactic = tactics[randint(0, len(tactics)-1)]
+                while (tactics.isUnrepeatable(tactic) and 
+                        tactic == chromosome[-1] ):
+                    tactic = tactics.randomSelect()
                 chromosome.append(tactic)
         return chromosome
 
