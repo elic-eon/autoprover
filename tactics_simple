@@ -1,8 +1,11 @@
 # intros
 intros
 
+# left & right.
+left,right
+
 # induction
-induction n,induction k,induction m,induction P
+induction n,induction k,induction m,induction P,induction a,induction b.
 induction H,induction IHn
 induction H0,induction H1
 

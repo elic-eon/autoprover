@@ -20,7 +20,7 @@ def getArgs():
             type=float, default=0,
             help="the percentage of elitism, default is 0")
     parser.add_argument("-c", "--cross-rate", dest='crossRate',
-            type=int, default=0.5, help="a cross rate, defalut is 0.5")
+            type=float, default=0.5, help="a cross rate, defalut is 0.5")
     parser.add_argument("-t", "--cross-type", dest='crossType',
             type=int, default=0, help="different type of cross, default is 0")
     parser.add_argument("-n", "--verify-num", dest='verifyNum',

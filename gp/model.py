@@ -73,7 +73,7 @@ class GPModel:
                 del newChromosome[crossPoint]
         return Gene(chromosome=newChromosome)
 
-    def crossOnArbSeq(self):
+    def crossOnArbSeq(self, slmax=6):
         parentOneIndex = randint(
                 0, floor(self.populationSize * self.crossRate)-1)
         parentTwoIndex = randint(
@@ -83,9 +83,11 @@ class GPModel:
         # crossPoint = randint(0,
                 # min(geneOfParentOne.length(),geneOfParentTwo.length())-1)
         p1Begin = myrandint(0, geneOfParentOne.length()-1)
-        p1End = p1Begin + myrandint(1, geneOfParentOne.length()-p1Begin)
+        p1End = p1Begin + myrandint(1,
+                min(slmax, geneOfParentOne.length()-p1Begin))
         p2Begin = myrandint(0, geneOfParentTwo.length()-1)
-        p2End = p2Begin + myrandint(1, geneOfParentTwo.length()-p2Begin)
+        p2End = p2Begin + myrandint(1,
+                min(slmax, geneOfParentTwo.length()-p2Begin))
         newChromosome = []
         newChromosome += geneOfParentOne.chromosome[:p1Begin]
         newChromosome += geneOfParentTwo.chromosome[p2Begin:p2End]
@@ -159,3 +161,15 @@ def myrandint(a, b):
         return a
     else:
         return randint(a, b)
+
+def max(a, b):
+    if a > b:
+        return a
+    else:
+        return b
+
+def min(a, b):
+    if a < b:
+        return a
+    else:
+        return b
