@@ -1,4 +1,6 @@
 import random
+import logging
+
 class TacticsSet():
     def __init__(self, tacticBase=None):
         self.read(tacticBase)
@@ -22,6 +24,9 @@ class TacticsSet():
             else:
                 if line.startswith("#unrepeatable"):
                     repFlag = False
+        logging.info("%d tactics loaded", 
+                len(self.repeatable) + len(self.unrepeatable))
+
     def randomSelect(self):
         return random.choice(tuple(self.repeatable | self.unrepeatable))
 

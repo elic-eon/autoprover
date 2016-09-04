@@ -6,8 +6,10 @@ from proof import bruteForceSearch
 from utils import parser
 from utils.tactic import TacticsSet
 from gp.model import GPModel
+from utils.log import regLogger
 
 if __name__ == "__main__":
+    regLogger()
     args = parser.getArgs()
     proof = Proof(args.file)
     tactics = TacticsSet(args.tacticBase)
