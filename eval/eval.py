@@ -1,11 +1,12 @@
 import subprocess
 from subprocess import PIPE, STDOUT
+from eval.coqState import CoqState
 
 def preprocess(theorem, chromosome):
     script = [] + theorem
     script += ["Proof."]
     script += ["intros."]
-    script += [x[0] for x in chromosome]
+    script += chromosome
     script += ["Qed."]
     return script
 
@@ -24,6 +25,29 @@ def runCoqtop(script):
 
     return out.decode('utf-8')
 
+def getCoqStates(result, theoremName):
+    splitedResult = splitCoqtopResult(result, theoremName)
+
+    filteredResult = []
+    for (i, step) in enumerate(splitedResult):
+        if (i == 0):
+            filteredResult.append(CoqState(step))
+            continue
+
+        if noMoreGoal(step):
+            filteredResult.append(CoqState(None, isProof=True))
+            break
+        elif step != splitedResult[i-1]:
+            if isErrorStep(step):
+                break
+            else:
+                filteredResult.append(CoqState(step))
+        else:
+            break
+
+    return filteredResult
+    
+
 def evaluateResult(result, theoremName, errorThreshold = 0,
         uselessThreshold = 0):
     validTactic = -1
@@ -37,8 +61,11 @@ def evaluateResult(result, theoremName, errorThreshold = 0,
         if (i == 0):
             validTactic += 1
             continue
+
+        if noMoreGoal(step):
+            return (True, validTactic)
         if checkPrevState(totalSteps, i) is True:
-            if hasError(step):
+            if isErrorStep(step):
                 errorTactic += 1
             else:
                 validTactic += 1
@@ -46,8 +73,6 @@ def evaluateResult(result, theoremName, errorThreshold = 0,
             uselessTactic += 1
         if errorTactic > errorThreshold or uselessTactic > uselessThreshold:
             break
-        if noMoreGoal(step):
-            return (True, validTactic)
 
     return (isProved, validTactic)
 
@@ -58,7 +83,7 @@ def checkPrevState(totalSteps, curIdx):
     else:
         return True
 
-def hasError(step):
+def isErrorStep(step):
     for line in step:
         if line.startswith("Error:"):
             return True

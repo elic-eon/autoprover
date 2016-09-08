@@ -1,4 +1,6 @@
 from random import random, randint
+from eval import eval
+import logging
 
 class Gene:
     def __init__(self, tactics=None, chromosome=None):
@@ -7,7 +9,22 @@ class Gene:
         else:
             self.chromosome = self.randomChromosome(tactics)
         self.fitness = 0
+        self.goal = None
+        self._isProof = False
 
+    def __len__(self):
+        return len(self.chromosome)
+
+    def updateFitnessForAProof(self, proof):
+        # TODO extract these two func into coqapi
+        coqScript = eval.preprocess(proof.theorem, self.chromosome)
+        runOutput = eval.runCoqtop(coqScript)
+        
+        coqStates = eval.getCoqStates(runOutput, proof.theoremName)
+        self.goal = coqStates[-1].getGoal()
+        self._isProof = coqStates[-1].isProof()
+        self.fitness = len(coqStates)
+    
     def updateFitness(self, fitness):
         self.fitness = fitness
 
@@ -25,6 +42,7 @@ class Gene:
                 chromosome.append(tactic)
         return chromosome
 
-    def length(self):
-        return len(self.chromosome)
+    def isProof(self):
+        return self._isProof
+
 
