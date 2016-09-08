@@ -62,16 +62,15 @@ class GPModel:
     def calculateFitness(self):
         # return individual if theorem is proved, o.w return None
         for (index, gene) in enumerate(self.population):
-            (isProved, fitness) = self.proof.calculateFitness(gene.chromosome)
-            # print("{0} {1} {2}".format(index, fitness, gene.length()))
-            gene.updateFitness(fitness)
-            if isProved:
+            gene.updateFitnessForAProof(self.proof)
+            # print("{0} {1} {2}".format(index, gene.fitness, len(gene)))
+            if gene.isProof():
                 self.printGeneByIndex(index, True)
                 return index
         return None
 
     def sortPopulation(self):
-        self.population.sort(key = lambda x : x.length(), reverse=False)
+        self.population.sort(key = lambda x : len(x), reverse=False)
         self.population.sort(key = lambda x : x.fitness, reverse=True)
 
     def crossBelowCrossRate(self):
@@ -82,7 +81,7 @@ class GPModel:
         geneOfParentOne = self.population[parentOneIndex]
         geneOfParentTwo = self.population[parentTwoIndex]
         crossPoint = randint(0,
-                min(geneOfParentOne.length(),geneOfParentTwo.length())-1)
+                min(len(geneOfParentOne),len(geneOfParentTwo))-1)
         newChromosome = []
         newChromosome += geneOfParentOne.chromosome[:crossPoint]
         newChromosome += geneOfParentTwo.chromosome[crossPoint:]
@@ -100,12 +99,12 @@ class GPModel:
         geneOfParentOne = self.population[parentOneIndex]
         geneOfParentTwo = self.population[parentTwoIndex]
 
-        p1Begin = myrandint(0, geneOfParentOne.length()-1)
+        p1Begin = myrandint(0, len(geneOfParentOne)-1)
         p1End = p1Begin + myrandint(1,
-                min(slmax, geneOfParentOne.length()-p1Begin))
-        p2Begin = myrandint(0, geneOfParentTwo.length()-1)
+                min(slmax, len(geneOfParentOne)-p1Begin))
+        p2Begin = myrandint(0, len(geneOfParentTwo)-1)
         p2End = p2Begin + myrandint(1,
-                min(slmax, geneOfParentTwo.length()-p2Begin))
+                min(slmax, len(geneOfParentTwo)-p2Begin))
         newChromosome = []
         newChromosome += geneOfParentOne.chromosome[:p1Begin]
         newChromosome += geneOfParentTwo.chromosome[p2Begin:p2End]
@@ -134,11 +133,11 @@ class GPModel:
         self.population = newPopulation
 
     def mutate(self, gene):
-        if (gene.length() == 1):
+        if (len(gene) == 1):
             gene.chromosome[0] = self.tactics.randomSelect()
         else:
             gene.chromosome[randint(0, 
-                gene.length()-1)] = self.tactics.randomSelect()
+                len(gene)-1)] = self.tactics.randomSelect()
 
     def printGeneByIndex(self, index, printScript):
         # print(self.population[index].fitness)
