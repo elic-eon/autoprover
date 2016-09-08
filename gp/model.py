@@ -28,12 +28,31 @@ class GPModel:
         print(self.verifyNum)
         print(self.proof)
 
+    def start(self):
+        self.initPopulation(self.populationSize)
+        self.preProcess()
+        while (True):
+            self.provedIndividual = self.calculateFitness()
+            if self.provedIndividual is not None:
+                # TODO add to a list, do not break
+                break;
+            if (self.currentGeneration > self.maxGeneration):
+                break;
+            print("Generation No.{0}".format(self.currentGeneration))
+            self.sortPopulation()
+            if self.debug:
+                for index in range(0, 30):
+                    self.printGeneByIndex(index, False)
+            self.crossover()
+            self.nextGeneration()
+        # self.printGeneByIndex(0, True)
+
     def initPopulation(self, size):
         self.population = []
         for individual in range(size):
             self.population.append(Gene(self.tactics))
 
-    def initProcess(self):
+    def preProcess(self):
         self.currentGeneration = 1
         self.provedIndividual = None
 
@@ -80,8 +99,7 @@ class GPModel:
                 0, floor(self.populationSize * self.crossRate)-1)
         geneOfParentOne = self.population[parentOneIndex]
         geneOfParentTwo = self.population[parentTwoIndex]
-        # crossPoint = randint(0,
-                # min(geneOfParentOne.length(),geneOfParentTwo.length())-1)
+
         p1Begin = myrandint(0, geneOfParentOne.length()-1)
         p1End = p1Begin + myrandint(1,
                 min(slmax, geneOfParentOne.length()-p1Begin))
@@ -121,24 +139,6 @@ class GPModel:
         else:
             gene.chromosome[randint(0, 
                 gene.length()-1)] = self.tactics.randomSelect()
-
-    def start(self):
-        self.initPopulation(self.populationSize)
-        self.initProcess()
-        while (True):
-            self.provedIndividual = self.calculateFitness()
-            if self.provedIndividual is not None:
-                break;
-            if (self.currentGeneration > self.maxGeneration):
-                break;
-            print("Generation No.{0}".format(self.currentGeneration))
-            self.sortPopulation()
-            if self.debug:
-                for index in range(0, 30):
-                    self.printGeneByIndex(index, False)
-            self.crossover()
-            self.nextGeneration()
-        self.printGeneByIndex(0, True)
 
     def printGeneByIndex(self, index, printScript):
         # print(self.population[index].fitness)

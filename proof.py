@@ -1,8 +1,10 @@
 from eval import eval
+import logging
 class Proof:
     def __init__(self, inputFile):
         self.theorem = self.readThmFromFile(inputFile)
-        self.theoremName = self.getThmNameFromList(self.theorem)
+        self.theoremName = self.getThmName()
+        logging.info("Theorem Name: %s", self.theoremName)
 
     def readThmFromFile(self, inputFile):
         retList = []
@@ -10,8 +12,8 @@ class Proof:
             retList.append(line.strip())
         return retList
 
-    def getThmNameFromList(self, tList):
-        for line in tList:
+    def getThmName(self):
+        for line in self.theorem:
             if (line.startswith("Theorem")):
                 return line.split()[1]
             if (line.startswith("Lemma")):
