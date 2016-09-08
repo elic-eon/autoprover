@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# bench 1000 population: 42.31s user 13.83s system 98% cpu 56.944 total
 import eval, gp, utils
 from proof import Proof
 from proof import bruteForceSearch
