@@ -1,8 +1,13 @@
+""" evaluation function for chromosome """
+
 import subprocess
 from subprocess import PIPE, STDOUT
-from eval.coqState import CoqState
+from evaluation.coqState import CoqState
 
 def preprocess(theorem, chromosome):
+    """
+    convert chromosome to complete Coq script
+    """
     script = [] + theorem
     script += ["Proof."]
     script += ["intros."]
@@ -10,100 +15,116 @@ def preprocess(theorem, chromosome):
     script += ["Qed."]
     return script
 
-def runCoqtop(script):
-    coqtop = subprocess.Popen('coqtop',
-            shell=False, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
+def run_coqtop(script):
+    """
+    run Coq script and return output
+    """
+    coqtop = subprocess.Popen('coqtop', shell=False,
+                              stdin=PIPE, stdout=PIPE, stderr=STDOUT)
 
     # truncate to byte string
-    byteString = b''
+    byte_string = b''
     for line in script:
-        byteString += line.encode('utf-8')
-        byteString += b'\n'
+        byte_string += line.encode('utf-8')
+        byte_string += b'\n'
 
     # communicate with coqtop
-    (out, err) = coqtop.communicate(input=byteString)
+    (out, _) = coqtop.communicate(input=byte_string)
 
     return out.decode('utf-8')
 
-def getCoqStates(result, theoremName):
-    splitedResult = splitCoqtopResult(result, theoremName)
+def get_coq_states(result, theorem_name):
+    """
+    return valid coq states
+    """
+    splited_result = split_coqtop_result(result, theorem_name)
 
-    filteredResult = []
-    for (i, step) in enumerate(splitedResult):
-        if (i == 0):
-            filteredResult.append(CoqState(step))
+    filtered_result = []
+    for (i, step) in enumerate(splited_result):
+        if i == 0:
+            filtered_result.append(CoqState(step))
             continue
 
-        if noMoreGoal(step):
-            filteredResult.append(CoqState(None, isProof=True))
+        if is_no_more_goal(step):
+            filtered_result.append(CoqState(None, isProof=True))
             break
-        elif step != splitedResult[i-1]:
-            if isErrorStep(step):
+        elif step != splited_result[i-1]:
+            if is_error_step(step):
                 break
             else:
-                filteredResult.append(CoqState(step))
+                filtered_result.append(CoqState(step))
         else:
             break
 
-    return filteredResult
-    
+    return filtered_result
 
-def evaluateResult(result, theoremName, errorThreshold = 0,
-        uselessThreshold = 0):
-    validTactic = -1
-    errorTactic = 0
-    uselessTactic = 0
-    isProved = False
+def evaluate_result(result, theorem_name, error_threshold=0,
+                    useless_threshold=0):
+    """
+    evaluate result from coq, return (is_proved, proof)
+    """
+    valid_tactic = -1
+    error_tactic = 0
+    useless_tactic = 0
 
-    totalSteps = splitCoqtopResult(result, theoremName)
+    total_steps = split_coqtop_result(result, theorem_name)
 
-    for (i, step) in enumerate(totalSteps):
-        if (i == 0):
-            validTactic += 1
+    for (i, step) in enumerate(total_steps):
+        if i == 0:
+            valid_tactic += 1
             continue
 
-        if noMoreGoal(step):
-            return (True, validTactic)
-        if checkPrevState(totalSteps, i) is True:
-            if isErrorStep(step):
-                errorTactic += 1
+        if is_no_more_goal(step):
+            return (True, valid_tactic)
+        if check_prev_step(total_steps, i) is True:
+            if is_error_step(step):
+                error_tactic += 1
             else:
-                validTactic += 1
+                valid_tactic += 1
         else:
-            uselessTactic += 1
-        if errorTactic > errorThreshold or uselessTactic > uselessThreshold:
+            useless_tactic += 1
+        if error_tactic > error_threshold or useless_tactic > useless_threshold:
             break
 
-    return (isProved, validTactic)
+    return (False, valid_tactic)
 
-def checkPrevState(totalSteps, curIdx):
-    for i in range(curIdx):
-        if totalSteps[curIdx] == totalSteps[i]:
+def check_prev_step(total_steps, cur_idx):
+    """
+    if current step show before return True otherwise False
+    """
+    for i in range(cur_idx):
+        if total_steps[cur_idx] == total_steps[i]:
             return False
-    else:
-        return True
+    return True
 
-def isErrorStep(step):
+def is_error_step(step):
+    """
+    check for an error
+    """
     for line in step:
         if line.startswith("Error:"):
             return True
-    else:
-        return False
+    return False
 
-def noMoreGoal(step):
+def is_no_more_goal(step):
+    """
+    check for specific message which means proof completed
+    """
     for line in step:
         if line.startswith("Error: No such unproven subgoal"):
             return True
         if line.find("No more subgoals.") > -1:
             return True
-    else:
-        return False
+    return False
 
-def splitCoqtopResult(result, theoremName):
-    totalSteps = []
+def split_coqtop_result(result, theorem_name):
+    """
+    split result into steps
+    """
+    total_steps = []
     step = []
     state = "begin"
-    spliter = theoremName + " <"
+    spliter = theorem_name + " <"
 
     for line in result.split("\n"):
         line = line.strip()
@@ -113,12 +134,10 @@ def splitCoqtopResult(result, theoremName):
                 step = [line]
         else:
             if line.startswith(spliter):
-                state == "state"
-                totalSteps.append(step)
+                total_steps.append(step)
                 step = [line]
             else:
                 step.append(line)
-    else:
-        totalSteps.append(step)
+    total_steps.append(step)
 
-    return totalSteps
+    return total_steps
