@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 # bench 1000 population: 42.31s user 13.83s system 98% cpu 56.944 total
-import eval, gp, utils
 from proof import Proof
 from proof import bruteForceSearch
 from utils import parser
 from utils.tactic import TacticsSet
-from gp.model import GPModel
 from utils.log import regLogger
+from gp.model import GPModel
+
 
 if __name__ == "__main__":
     regLogger()
@@ -26,4 +26,3 @@ if __name__ == "__main__":
             pass
         else:
             pass
-
