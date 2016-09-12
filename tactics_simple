@@ -5,7 +5,7 @@ intros
 left,right
 
 # induction
-induction n,induction k,induction m,induction P,induction a,induction b.
+induction n,induction k,induction m,induction P,induction a,induction b
 induction H,induction IHn
 induction H0,induction H1
 
