@@ -2,7 +2,7 @@
 define coq
 """
 
-class CoqState():
+class CoqState:
     """
     coq state data structure
     """

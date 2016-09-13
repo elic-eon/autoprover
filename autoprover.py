@@ -5,13 +5,13 @@ from proof import Proof
 from proof import bruteForceSearch
 from utils import parser
 from utils.tactic import TacticsSet
-from utils.log import regLogger
+from utils.log import reg_logger
 from gp.model import GPModel
 
 
 if __name__ == "__main__":
-    regLogger()
-    args = parser.getArgs()
+    reg_logger()
+    args = parser.get_args()
     proof = Proof(args.file)
     tactics = TacticsSet(args.tacticBase)
 
@@ -22,7 +22,7 @@ if __name__ == "__main__":
         # gpModel.showProp()
         gpModel.start()
 
-        if gpModel.isProved():
+        if gpModel.is_proved():
             pass
         else:
             pass

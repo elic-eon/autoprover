@@ -1,48 +1,67 @@
-from random import random, randint
-from eval import eval
-import logging
+"""
+define class Gene
+"""
+# from random import randint
+from evaluation import evaluation
+# import logging
+
+def random_chromosome(tactics):
+    """
+    generate a random chromosome
+    """
+    chromosome = []
+    # chromosome_length = randint(4, 15)
+    for _ in range(15):
+        tactic = tactics.randomSelect()
+        if len(chromosome) == 0:
+            chromosome.append(tactic)
+        else:
+            while (tactics.isUnrepeatable(tactic) and
+                   tactic == chromosome[-1]):
+                tactic = tactics.randomSelect()
+            chromosome.append(tactic)
+    return chromosome
 
 class Gene:
+    """
+    gene for gp
+    """
     def __init__(self, tactics=None, chromosome=None):
         if chromosome is not None:
             self.chromosome = chromosome
         else:
-            self.chromosome = self.randomChromosome(tactics)
+            self.chromosome = random_chromosome(tactics)
         self.fitness = 0
         self.goal = None
-        self._isProof = False
+        self._is_proof = False
 
     def __len__(self):
         return len(self.chromosome)
 
-    def updateFitnessForAProof(self, proof):
+    def update_fitness_for_proof(self, proof):
+        """
+        re-evaluate fitness for a proof
+        """
         # TODO extract these two func into coqapi
-        coqScript = eval.preprocess(proof.theorem, self.chromosome)
-        runOutput = eval.runCoqtop(coqScript)
-        
-        coqStates = eval.getCoqStates(runOutput, proof.theoremName)
-        self.goal = coqStates[-1].getGoal()
-        self._isProof = coqStates[-1].isProof()
-        self.fitness = len(coqStates)
-    
-    def updateFitness(self, fitness):
+        coq_script = evaluation.preprocess(proof.theorem, self.chromosome)
+        run_output = evaluation.run_coqtop(coq_script)
+        coq_states = evaluation.get_coq_states(run_output, proof.theoremName)
+        self.goal = coq_states[-1].getGoal()
+        print(self.chromosome[0:3])
+        print(coq_states[-1].data)
+        self._is_proof = coq_states[-1].isProof()
+        self.fitness = len(coq_states)
+        return
+
+    def update_fitness(self, fitness):
+        """
+        replace fitness by arg
+        """
         self.fitness = fitness
 
-    def randomChromosome(self, tactics):
-        chromosome = []
-        chromosomeLength = randint(4, 15)
-        for fragNum in range(15):
-            tactic = tactics.randomSelect()
-            if len(chromosome) == 0:
-                chromosome.append(tactic)
-            else:
-                while (tactics.isUnrepeatable(tactic) and 
-                        tactic == chromosome[-1] ):
-                    tactic = tactics.randomSelect()
-                chromosome.append(tactic)
-        return chromosome
 
-    def isProof(self):
-        return self._isProof
-
-
+    def is_proof(self):
+        """
+        return if it is a proved gene
+        """
+        return self._is_proof

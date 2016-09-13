@@ -1,8 +1,10 @@
-""" evaluation function for chromosome """
+"""
+evaluation function for chromosome
+"""
 
 import subprocess
 from subprocess import PIPE, STDOUT
-from evaluation.coqState import CoqState
+from evaluation.coqstate import CoqState
 
 def preprocess(theorem, chromosome):
     """
