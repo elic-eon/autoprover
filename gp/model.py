@@ -102,7 +102,7 @@ class GPModel:
         """
         sort population by length and fitness
         """
-        self.population.sort(key=lambda x: len(x), reverse=False)
+        self.population.sort(key=len, reverse=False)
         self.population.sort(key=lambda x: x.fitness, reverse=True)
 
     def cross_below_cross_rate(self):
@@ -117,8 +117,7 @@ class GPModel:
         new_chromosome = []
         new_chromosome += gene_of_p1.chromosome[:cross_point]
         new_chromosome += gene_of_p2.chromosome[cross_point:]
-        #TODO fix it
-        if (new_chromosome[cross_point][1] is False
+        if (self.tactics.is_unrepeatable(new_chromosome[cross_point])
                 and cross_point < len(new_chromosome)-1):
             if new_chromosome[cross_point] == new_chromosome[cross_point+1]:
                 del new_chromosome[cross_point]

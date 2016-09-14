@@ -12,13 +12,13 @@ def random_chromosome(tactics):
     chromosome = []
     # chromosome_length = randint(4, 15)
     for _ in range(15):
-        tactic = tactics.randomSelect()
+        tactic = tactics.random_select()
         if len(chromosome) == 0:
             chromosome.append(tactic)
         else:
-            while (tactics.isUnrepeatable(tactic) and
+            while (tactics.is_unrepeatable(tactic) and
                    tactic == chromosome[-1]):
-                tactic = tactics.randomSelect()
+                tactic = tactics.random_select()
             chromosome.append(tactic)
     return chromosome
 

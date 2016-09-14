@@ -1,5 +1,4 @@
-"""
-evaluation function for chromosome
+"""evaluation function for chromosome
 """
 
 import subprocess
