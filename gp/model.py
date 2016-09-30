@@ -28,6 +28,8 @@ class GPModel:
         self.proved_individual = None
         self.population = None
         self.current_generation = 0
+        self.init_population(self.population_size)
+        self.pre_process()
 
     def show_prop(self):
         """
@@ -42,28 +44,6 @@ class GPModel:
         print(self.verify_num)
         print(self.proof)
 
-    def start(self):
-        """
-        run the model
-        """
-        self.init_population(self.population_size)
-        self.pre_process()
-        while True:
-            self.proved_individual = self.calculate_fitness()
-            if self.proved_individual is not None:
-                # TODO add to a list, do not break
-                break
-            if self.current_generation > self.max_generation:
-                break
-            print("Generation No.{0}".format(self.current_generation))
-            self.sort_sopulation()
-            if self.debug:
-                for index in range(0, 30):
-                    self.print_gene_by_index(index, False)
-            self.crossover()
-            self.next_generation()
-        # self.printGeneByIndex(0, True)
-
     def init_population(self, size):
         """
         create population by size
@@ -77,16 +57,39 @@ class GPModel:
         run before start
         """
         self.current_generation = 1
-        self.proved_individual = None
+        self.proved_individual = self.calculate_fitness()
 
+
+    def start(self, gen=None):
+        """
+        run the model
+        """
+        if gen is None:
+            local_gen_limit = self.max_generation + 1
+        else:
+            local_gen_limit = gen
+
+        for _ in range(local_gen_limit):
+            # TODO calculate_fitness should not return individual
+            print("Generation No.{0}".format(self.current_generation))
+            # if self.debug:
+                # self.sort_sopulation()
+                # for index in range(0, 30):
+                    # self.print_gene_by_index(index, False)
+            self.crossover()
+            self.next_generation()
+            if self.current_generation > self.max_generation:
+                break
+
+        # self.printGeneByIndex(0, True)
     def next_generation(self):
         """
         next generation
         """
+        self.proved_individual = self.calculate_fitness()
         self.current_generation += 1
 
     def calculate_fitness(self):
-        # deprecated
         """
         return individual if theorem is proved, o.w return None
         """
@@ -97,6 +100,25 @@ class GPModel:
                 self.print_gene_by_index(index, True)
                 return index
         return None
+
+    def crossover(self):
+        """
+        the crossover operation for gp
+        """
+        self.sort_sopulation()
+        elite_amount = round(self.elite_rate * self.population_size)
+        # preserve from the top
+        new_population = [] + self.population[:elite_amount] # not deep copy
+        for _ in range(elite_amount, int(self.population_size/2)):
+            # newGene = self.crossBelowCrossRate()
+            new_gene, new_gene2 = self.cross_on_arb_seq()
+            if random() <= self.mutate_rate:
+                self.mutate(new_gene)
+            if random() <= self.mutate_rate:
+                self.mutate(new_gene2)
+            new_population.append(new_gene)
+            new_population.append(new_gene2)
+        self.population = new_population
 
     def sort_sopulation(self):
         """
@@ -148,25 +170,6 @@ class GPModel:
             # ,len(geneOfParentTwo.chromosome), len(newChromosome), len(newChromosome2)))
         return Gene(chromosome=new_chromosome), Gene(chromosome=new_chromosome2)
 
-    def crossover(self):
-        """
-        the crossover operation for gp
-        """
-        self.sort_sopulation()
-        elite_amount = round(self.elite_rate * self.population_size)
-        # preserve from the top
-        new_population = [] + self.population[:elite_amount] # not deep copy
-        for _ in range(elite_amount, int(self.population_size/2)):
-            # newGene = self.crossBelowCrossRate()
-            new_gene, new_gene2 = self.cross_on_arb_seq()
-            if random() <= self.mutate_rate:
-                self.mutate(new_gene)
-            if random() <= self.mutate_rate:
-                self.mutate(new_gene2)
-            new_population.append(new_gene)
-            new_population.append(new_gene2)
-        self.population = new_population
-
     def mutate(self, gene):
         """
         the mutate operation
@@ -175,7 +178,15 @@ class GPModel:
             gene.chromosome[0] = self.tactics.random_select()
         else:
             gene.chromosome[randint(0, len(gene)-1)] = \
-                    self.tactics.randomSelect()
+                    self.tactics.random_select()
+
+    def edit(self):
+        """Human involved modification of some gene of the population
+        """
+        self.sort_sopulation()
+        editable_amount = 1
+        for index in range(editable_amount):
+            self.population[index].modification()
 
     def print_gene_by_index(self, index, print_pcript):
         """
