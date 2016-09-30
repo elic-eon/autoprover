@@ -29,7 +29,7 @@ class TacticsSet():
                         self.repeatable.add(tactic+".")
                     else:
                         self.unrepeatable.add(tactic+".")
-                rep_flag = True
+                # rep_flag = True
             else:
                 if line.startswith("#unrepeatable"):
                     rep_flag = False
