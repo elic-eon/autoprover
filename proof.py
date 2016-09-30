@@ -1,37 +1,41 @@
-from eval import eval
+"""
+define a proof
+"""
 import logging
+from evaluation import evaluation
+
 class Proof:
-    def __init__(self, inputFile):
-        self.theorem = self.readThmFromFile(inputFile)
-        self.theoremName = self.getThmName()
-        logging.info("Theorem Name: %s", self.theoremName)
+    """A proof"""
+    def __init__(self, input_file, tactics):
+        self.read_theorem_from_file(input_file)
+        self.theorem_name = self.get_theorem_name()
+        self.tactics = tactics
+        logging.info("Theorem Name: %s", self.theorem_name)
 
-    def readThmFromFile(self, inputFile):
-        retList = []
-        for line in inputFile:
-            retList.append(line.strip())
-        return retList
+    def read_theorem_from_file(self, input_file):
+        """read from file
+        """
+        self.theorem = list()
+        for line in input_file:
+            self.theorem.append(line.strip())
 
-    def getThmName(self):
+    def get_theorem_name(self):
+        """extract theorem name from theorem
+        """
         for line in self.theorem:
-            if (line.startswith("Theorem")):
+            if line.startswith("Theorem"):
                 return line.split()[1]
-            if (line.startswith("Lemma")):
+            if line.startswith("Lemma"):
                 return line.split()[1]
 
-    def calculateFitness(self, chromosome):
-        script = eval.preprocess(self.theorem, chromosome)
-        result = eval.runCoqtop(script)
-        return eval.evaluateResult(result, self.theoremName)
-
-def bruteForceSearch(proof, tactics):
-    pool = [([x],1) for x in tactics]
+def brute_force_search(proof, tactics):
+    pool = [([x]) for x in tactics]
 
     poolBuf = []
     for (tacticList, steps) in pool:
-        script = eval.preprocess(proof.theorem, tacticList)
-        result = eval.runCoqtop(script)
-        s = eval.evaluateResult(result, proof.theoremName)
+        script = evaluation.preprocess(proof.theorem, tacticList)
+        result = evaluation.run_coqtop(script)
+        s = evaluation.evaluate_result(result, proof.theoremName)
         if s[1] > steps:
             poolBuf += [(tacticList, s[1])]
     else:
@@ -47,9 +51,9 @@ def bruteForceSearch(proof, tactics):
             poolBuf = []
 
         for (tacticList, steps) in pool:
-            script = eval.preprocess(proof.theorem, tacticList)
-            result = eval.runCoqtop(script)
-            s = eval.evaluateResult(result, proof.theoremName)
+            script = evaluation.preprocess(proof.theorem, tacticList)
+            result = evaluation.run_coqtop(script)
+            s = evaluation.evaluate_result(result, proof.theoremName)
             if s[0] is True:
                 print("Found")
                 print(tacticList)
@@ -61,4 +65,3 @@ def bruteForceSearch(proof, tactics):
             poolBuf = []
 
         print(len(pool))
-
