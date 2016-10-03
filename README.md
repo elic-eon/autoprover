@@ -1,4 +1,5 @@
 # autoprover
+Example `./autoprover.py <file> -b tactic_base`
 
 # Ref
 * [Certified Programming with Dependent Types](http://adam.chlipala.net/cpdt/),
@@ -8,4 +9,6 @@
 * DEBUG information/log
 * Unit test
 * fitness improved
+    * Sum (hypothesis/goal) for now
 * crossover method
+* auto generate tactics set
