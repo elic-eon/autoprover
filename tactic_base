@@ -14,8 +14,6 @@ eapply left,eapply right
 #Hypothesis
 eapply H,eapply H0,eapply H1,eapply IHn,eapply IHk
 exact H,exact H0,exact H1,exact IHn,exact IHk
-inversion H,inversion IHn,inversion IHk
-inversion H0,inversion H1
 rewrite H,rewrite H0,rewrite H1,rewrite IHn,rewrite IHk
 assumption,reflexivity
 
@@ -58,3 +56,5 @@ rewrite <- plus_n_Sm,rewrite -> plus_n_Sm,rewrite <- plus_Sn_m,rewrite -> plus_S
 
 #unrepeatable tactics
 simpl,trivial,rewrite plus_comm,rewrite mult_comm,eapply sym_not_eq,eapply eq_sym
+inversion H,inversion IHn,inversion IHk
+inversion H0,inversion H1
