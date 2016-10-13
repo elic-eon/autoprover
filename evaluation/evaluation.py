@@ -11,7 +11,7 @@ def preprocess(theorem, chromosome):
     """
     script = [] + theorem
     script += ["Proof."]
-    script += ["intros."]
+    # script += ["intros."]
     script += chromosome
     script += ["Qed."]
     return script
@@ -51,25 +51,20 @@ def get_coq_states(result, proof, chromosome, threshold=-1):
             continue
 
         # create a new state
-        # TODO remove the first intros.
-        if i == 1:
-            state = CoqState(step, "intros.")
-        elif i == (len(splited_result)-2):
+        if i == (len(splited_result)-2):
             state = CoqState(step, None)
         else:
-            state = CoqState(step, chromosome[i-2])
+            state = CoqState(step, chromosome[i-1])
 
         if state.is_no_more_goal:
             filtered_result.append(state)
-        elif state.is_error_state:
+        elif state.is_error_state or state == filtered_result[-1]:
             error_count += 1
-        elif state == filtered_result[-1]:
-            error_count += 1
-        elif i > 1 and proof.tactics.is_unrepeatable(chromosome[i-2]):
-            if chromosome[i-2] in tactics_set:
+        elif i > 1 and proof.tactics.is_unrepeatable(chromosome[i-1]):
+            if chromosome[i-1] in tactics_set:
                 error_count += 1
             else:
-                tactics_set.add(chromosome[i-2])
+                tactics_set.add(chromosome[i-1])
         else:
             filtered_result.append(state)
 
