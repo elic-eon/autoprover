@@ -51,6 +51,7 @@ rewrite <- plus_n_O,rewrite -> plus_n_O,rewrite <- plus_O_n,rewrite -> plus_O_n
 rewrite <- plus_n_Sm,rewrite -> plus_n_Sm,rewrite <- plus_Sn_m,rewrite -> plus_Sn_m
 
 #others
+split
 
 #unfold gt,unfold lt
 
