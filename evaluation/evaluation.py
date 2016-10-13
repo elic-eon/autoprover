@@ -34,33 +34,47 @@ def run_coqtop(script):
 
     return out.decode('utf-8')
 
-def get_coq_states(result, proof, chromosome):
+def get_coq_states(result, proof, chromosome, threshold=-1):
     """
     return valid coq states
+    threshold: -1 if ignore all error
     """
     splited_result = split_coqtop_result(result, proof.theorem_name)
 
     filtered_result = []
     tactics_set = set()
-    for (i, step) in enumerate(splited_result):
+    error_count = 0
+    for (i, step) in enumerate(splited_result[:-1]):
+        # the first step is the state after Proof.
         if i == 0:
-            filtered_result.append(CoqState(step))
+            filtered_result.append(CoqState(step, None))
             continue
 
-        state = CoqState(step)
+        # create a new state
+        # TODO remove the first intros.
+        if i == 1:
+            state = CoqState(step, "intros.")
+        elif i == (len(splited_result)-2):
+            state = CoqState(step, None)
+        else:
+            state = CoqState(step, chromosome[i-2])
+
         if state.is_no_more_goal:
             filtered_result.append(state)
         elif state.is_error_state:
-            break
+            error_count += 1
         elif state == filtered_result[-1]:
-            break
+            error_count += 1
         elif i > 1 and proof.tactics.is_unrepeatable(chromosome[i-2]):
             if chromosome[i-2] in tactics_set:
-                break
+                error_count += 1
             else:
                 tactics_set.add(chromosome[i-2])
         else:
             filtered_result.append(state)
+
+        if error_count == threshold:
+            break
 
     return filtered_result
 
@@ -110,6 +124,8 @@ def is_error_step(step):
     for line in step:
         if line.startswith("Error:"):
             return True
+        if line.startswith("H, H"):
+            return True
     return False
 
 def is_no_more_goal(step):
@@ -148,15 +164,15 @@ def split_coqtop_result(result, theorem_name):
 
     return total_steps
 
-def calculate_fitness(coq_states, chromosome, tactics):
+def calculate_fitness(coq_states):
     """calculate fitness from coqstates
     score = sum(len(hypothesis)/len(goal))
     """
     score = 0.0
-    for index, state in enumerate(coq_states):
-        if (index > 2 and chromosome[index-2] == chromosome[index-3]
-                and tactics.is_unrepeatable(chromosome[index-2])):
-            coq_states = coq_states[:index]
-            break
-        score += len(state.hypothesis) / len(state.goal)
+    for state in coq_states:
+        try:
+            score += len(state.hypothesis) / len(state.goal)
+        except ZeroDivisionError:
+            print(state.data)
+            exit(1)
     return score

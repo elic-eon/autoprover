@@ -6,8 +6,9 @@ class CoqState:
     """
     coq state data structure
     """
-    def __init__(self, text, is_proof=False):
+    def __init__(self, text, tactic, is_proof=False):
         self._is_proof = is_proof
+        self._tactic = tactic
         self.data = text
         self._goal = ""
         self._hypothesis = ""
