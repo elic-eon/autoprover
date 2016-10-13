@@ -65,17 +65,21 @@ class GPModel:
         run the model
         """
         if gen is None:
+            # if gen is not set
             local_gen_limit = self.max_generation + 1
         else:
             local_gen_limit = gen
 
+        if self.current_generation > self.max_generation:
+            return
+
         for _ in range(local_gen_limit):
             # TODO calculate_fitness should not return individual
             print("Generation No.{0}".format(self.current_generation))
-            # if self.debug:
-                # self.sort_sopulation()
-                # for index in range(0, 30):
-                    # self.print_gene_by_index(index, False)
+            if self.debug:
+                self.sort_sopulation()
+                for index in range(0, 30):
+                    self.population[index].print_lastest()
             self.crossover()
             self.next_generation()
             if self.current_generation > self.max_generation:
@@ -187,6 +191,7 @@ class GPModel:
         editable_amount = 1
         for index in range(editable_amount):
             self.population[index].modification()
+            self.population[index].update_fitness_for_proof(self.proof)
 
     def print_gene_by_index(self, index, print_pcript):
         """

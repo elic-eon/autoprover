@@ -51,12 +51,34 @@ class Gene:
         self.lastest_state = coq_states[-1]
         # print(self.chromosome[0:3])
         # print(coq_states[-1].data)
-        self._is_proof = coq_states[-1].is_proof
+        self._is_proof = coq_states[-1].is_no_more_goal
+        if self._is_proof:
+            return
         self.length_of_states = len(coq_states)
         # self.fitness = len(coq_states)-2
-        self.fitness = evaluation.calculate_fitness(coq_states,
-                                                    self.chromosome,
-                                                    proof.tactics)
+        self.fitness = evaluation.calculate_fitness(coq_states)
+        print(self.fitness)
+        for state in coq_states:
+            print("> ", end="")
+            print(state._tactic)
+            print(state.hypothesis)
+            print("======================")
+            print(state.goal)
+            print("")
+        print("")
+        return
+
+    def print_lastest(self):
+        """print out gene
+        """
+        print("c_len\ts_len\tfitness")
+        print(len(self.chromosome), end="\t")
+        print(self.length_of_states-2, end="\t")
+        print(self.fitness)
+        print(self.chromosome)
+        print(self.lastest_state.hypothesis)
+        print("======================")
+        print(self.lastest_state.goal)
         return
 
     def modification(self):
@@ -65,13 +87,7 @@ class Gene:
         if self.is_proof():
             return
         print("Human involve")
-        print(len(self.chromosome), end="\t")
-        print(self.length_of_states, end="\t")
-        print(self.fitness)
-        print(self.chromosome)
-        print(self.lastest_state.hypothesis)
-        print("======================")
-        print(self.lastest_state.goal)
+        self.print_lastest()
         input_tactic = input("Enter tactic: ")
         if len(self.chromosome) == self.length_of_states-2:
             self.chromosome.append(input_tactic)
