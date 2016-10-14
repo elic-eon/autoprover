@@ -187,6 +187,8 @@ class GPModel:
     def edit(self):
         """Human involved modification of some gene of the population
         """
+        if self.current_generation > self.max_generation:
+            return
         self.sort_sopulation()
         editable_amount = 1
         for index in range(editable_amount):

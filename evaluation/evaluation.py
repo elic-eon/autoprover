@@ -10,7 +10,7 @@ def preprocess(theorem, chromosome):
     convert chromosome to complete Coq script
     """
     script = [] + theorem
-    script += ["Proof."]
+    # script += ["Proof."]
     # script += ["intros."]
     script += chromosome
     script += ["Qed."]
@@ -41,12 +41,13 @@ def get_coq_states(result, proof, chromosome, threshold=-1):
     """
     splited_result = split_coqtop_result(result, proof.theorem_name)
 
+    offset = proof.offset
     filtered_result = []
     tactics_set = set()
     error_count = 0
     for (i, step) in enumerate(splited_result[:-1]):
         # the first step is the state after Proof.
-        if i == 0:
+        if i < offset:
             filtered_result.append(CoqState(step, None))
             continue
 
@@ -54,17 +55,17 @@ def get_coq_states(result, proof, chromosome, threshold=-1):
         if i == (len(splited_result)-2):
             state = CoqState(step, None)
         else:
-            state = CoqState(step, chromosome[i-1])
+            state = CoqState(step, chromosome[i-offset])
 
         if state.is_no_more_goal:
             filtered_result.append(state)
         elif state.is_error_state or state == filtered_result[-1]:
             error_count += 1
-        elif i > 1 and proof.tactics.is_unrepeatable(chromosome[i-1]):
-            if chromosome[i-1] in tactics_set:
+        elif i >= offset and proof.tactics.is_unrepeatable(chromosome[i-offset]):
+            if chromosome[i-offset] in tactics_set:
                 error_count += 1
             else:
-                tactics_set.add(chromosome[i-1])
+                tactics_set.add(chromosome[i-offset])
         else:
             filtered_result.append(state)
 

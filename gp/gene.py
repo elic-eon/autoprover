@@ -73,7 +73,7 @@ class Gene:
         """
         print("c_len\ts_len\tfitness")
         print(len(self.chromosome), end="\t")
-        print(self.length_of_states-2, end="\t")
+        print(self.length_of_states-1, end="\t")
         print(self.fitness)
         print(self.chromosome)
         print(self.lastest_state.hypothesis)
