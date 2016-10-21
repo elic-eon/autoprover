@@ -9,6 +9,9 @@ Example:
 class CoqState:
     """
     coq state data structure
+    Args:
+        text (string): a state of coqtop
+        tactic (string): tactic used in this state
     """
     def __init__(self, text, tactic, is_proof=False):
         self._is_proof = is_proof
@@ -17,33 +20,79 @@ class CoqState:
         self._goal = ""
         self._hypothesis = ""
         self._error = False
-        self._no_more_goal = False
-        if not self._is_proof:
+        if not self.is_proof:
             self.parse(text)
 
     def __eq__(self, other):
         return self._goal == other.goal
 
     def __str__(self):
-        return '> %s\n%s\n%s\n%s' % (self._tactic,
-                                     self._hypothesis,
+        return '> %s\n%s\n%s\n%s' % (self.tactic,
+                                     self.hypothesis,
                                      "============================",
-                                     self._goal)
+                                     self.goal)
+
+    @property
+    def is_proof(self):
+        """If it's a proof
+
+        Returns:
+            bool: True if proof complete in this state.
+        """
+        return self._is_proof
+
+    @property
+    def tactic(self):
+        """Tactic of this state
+
+        Returns:
+            string: a tactic
+        """
+        return self._tactic
+
+    @property
+    def goal(self):
+        """Goal of state
+
+        Returns:
+            string: goal of current state
+        """
+        return self._goal
+
+    @property
+    def hypothesis(self):
+        """Hypothesis of state
+
+        Returns:
+            string: hypothesis
+        """
+        return self._hypothesis
+
+    @property
+    def is_error_state(self):
+        """Error state attribute
+
+        Returns:
+            bool: True if this state has some error message
+        """
+        return self._error
 
     def parse(self, text):
         """Parse goal and hypothesis from text
         set _error and _no_more_goal
         """
         goal_flag = False
+        goal = []
+        hypothesis = []
         for i, line in enumerate(text.split("\n")):
             line = line.strip()
             if line.find("No more subgoals.") > -1:
-                self._no_more_goal = True
+                self._is_proof = True
                 return
             elif (line.startswith("Error: No such unproven subgoal")
                   or line.startswith("Error: No such goal.")):
                 self._error = True
-                self._no_more_goal = True
+                self._is_proof = True
                 return
             elif line.startswith("Error:") or line.startswith("H, H"):
                 self._error = True
@@ -53,44 +102,11 @@ class CoqState:
                     goal_flag = True
                 else:
                     if goal_flag:
-                        self._goal += line + "\n"
+                        goal.append(line)
                     else:
-                        self._hypothesis += line + "\n"
-        self._goal = self._goal.rstrip('\n')
-        self._hypothesis = self._hypothesis.rstrip('\n')
+                        hypothesis.append(line)
+        self._goal = '\n'.join(goal)
+        self._hypothesis = '\n'.join(hypothesis)
 
-    @property
-    def is_no_more_goal(self):
-        """no more goal attribute
-        """
-        return self._no_more_goal
-
-    @property
-    def is_error_state(self):
-        """Error state attribute
-        """
-        return self._error
-
-    @property
-    def is_proof(self):
-        """
-        return if itself is a proof
-        """
-        return self._is_proof
-
-    @property
-    def goal(self):
-        """
-        return goal of state
-        """
-        return self._goal
-
-    @property
-    def hypothesis(self):
-        """
-        return hypothesis of state
-        """
-        return self._hypothesis
-
-    def print_out(self):
-        pass
+        if not self._goal:
+            self._is_proof = True
