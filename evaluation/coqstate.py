@@ -1,5 +1,9 @@
-"""
-define coq
+"""Coqstate
+This module describe the state of coqtop, including hypothesis, current goals
+and a coq tactic.
+
+Example:
+    current_state = Coqstate(some_coq_output, a_tactic)
 """
 
 class CoqState:
@@ -20,23 +24,29 @@ class CoqState:
     def __eq__(self, other):
         return self._goal == other.goal
 
+    def __str__(self):
+        return '> %s\n%s\n%s\n%s' % (self._tactic,
+                                     self._hypothesis,
+                                     "============================",
+                                     self._goal)
 
     def parse(self, text):
-        """parse goal and hypothesis from text
-        set attribute for state
+        """Parse goal and hypothesis from text
+        set _error and _no_more_goal
         """
         goal_flag = False
-        for i, line in enumerate(text):
-            if line.startswith("Error:"):
-                self._error = True
-                return
-            if (line.startswith("Error: No such unproven subgoal")
-                    or line.startswith("Error: No such goal.")):
-                self._error = True
-                self._no_more_goal = True
-                return
+        for i, line in enumerate(text.split("\n")):
+            line = line.strip()
             if line.find("No more subgoals.") > -1:
                 self._no_more_goal = True
+                return
+            elif (line.startswith("Error: No such unproven subgoal")
+                  or line.startswith("Error: No such goal.")):
+                self._error = True
+                self._no_more_goal = True
+                return
+            elif line.startswith("Error:") or line.startswith("H, H"):
+                self._error = True
                 return
             if i > 1:
                 if line.startswith("==="):

@@ -7,6 +7,7 @@ from evaluation import evaluation
 class Proof:
     """A proof"""
     def __init__(self, input_file, tactics):
+        self.theorem = []
         self.read_theorem_from_file(input_file)
         self.theorem_name = self.get_theorem_name()
         self.tactics = tactics
@@ -16,7 +17,6 @@ class Proof:
     def read_theorem_from_file(self, input_file):
         """read from file
         """
-        self.theorem = list()
         for line in input_file:
             self.theorem.append(line.strip())
 
@@ -28,6 +28,12 @@ class Proof:
                 return line.split()[1]
             if line.startswith("Lemma"):
                 return line.split()[1]
+
+    @property
+    def pre_feed_tactic(self):
+        """pre-feed tactic including 'Proof.'
+        """
+        return self.theorem[len(self.theorem)-self.offset:]
 
     def get_offset(self):
         """
