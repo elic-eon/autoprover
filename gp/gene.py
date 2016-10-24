@@ -79,7 +79,10 @@ class Gene:
         if self.is_proof:
             return
 
-        self.fitness = evaluation.calculate_fitness(self.coq_states)
+        self.fitness = evaluation.calculate_fitness(
+            self.coq_states[proof.offset:])
+        n_error = len(self.chromosome) - len(self.coq_states)
+        self.fitness -= n_error / len(self.chromosome)
         print(self.fitness)
         for state in self.coq_states:
             print(state)
@@ -92,7 +95,7 @@ class Gene:
         print(len(self.chromosome), end="\t")
         print(self.length_of_states-1, end="\t")
         print(self.fitness)
-        print(self.valid_tactics())
+        print('\n'.join(self.valid_tactics))
         print(self.coq_states[-1])
         return
 
@@ -107,18 +110,16 @@ class Gene:
             input_tactic = input("Enter tactic: ")
         except EOFError:
             return
-        if len(self.chromosome) == self.length_of_states-2:
-            self.chromosome.append(input_tactic)
-        else:
-            self.chromosome[self.length_of_states-2] = input_tactic
-        print(self.chromosome)
+        self.chromosome.append(input_tactic)
+        # print(self.chromosome)
 
+    @property
     def valid_tactics(self):
         """valid tactics from self.coq_states
         Returns:
-            string: valid tactics
+            list: valid tactics
         """
-        return '\n'.join(e.tactic for e in self.coq_states)
+        return [e.tactic for e in self.coq_states]
 
     def goal(self):
         """return goal of gene

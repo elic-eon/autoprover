@@ -1,6 +1,9 @@
 """
 define model for gp
 """
+# from threading import Thread
+# from queue import Queue
+from multiprocessing import Pool
 from random import random, randint
 from math import floor
 from evaluation import evaluation
@@ -25,9 +28,9 @@ class GPModel:
         self.debug = args.debug
         self.proof = proof
         self.tactics = tactics
-        self.proved_individual = None
         self.population = None
-        self.current_generation = 0
+        self.current_generation = 1
+        self.proofs = []
         self.init_population(self.population_size)
         self.pre_process()
 
@@ -57,8 +60,8 @@ class GPModel:
         run before start
         """
         self.current_generation = 1
-        self.proved_individual = self.calculate_fitness()
-
+        self.update_fitness_for_population()
+        self.check_proof()
 
     def start(self, gen=None):
         """
@@ -74,7 +77,6 @@ class GPModel:
             return
 
         for _ in range(local_gen_limit):
-            # TODO calculate_fitness should not return individual
             print("Generation No.{0}".format(self.current_generation))
             if self.debug:
                 self.sort_sopulation()
@@ -90,20 +92,52 @@ class GPModel:
         """
         next generation
         """
-        self.proved_individual = self.calculate_fitness()
+        self.update_fitness_for_population()
         self.current_generation += 1
+        self.check_proof()
 
-    def calculate_fitness(self):
+    def check_proof(self):
+        """Check if there is a proof in population
+        """
+        for gene in self.population:
+            if gene.is_proof:
+                self.proofs.append(Gene(chromosome=gene.valid_tactics))
+
+    def update_fitness_for_population(self):
         """
         return individual if theorem is proved, o.w return None
         """
-        for (index, gene) in enumerate(self.population):
-            gene.update_fitness_for_proof(self.proof)
-            # print("{0} {1} {2}".format(index, gene.fitness, len(gene)))
-            if gene.is_proof():
-                self.print_gene_by_index(index, True)
-                return index
-        return None
+        def wrapper(func, *args, **kwargs):
+            """func wrapper"""
+            return func, args, kwargs
+
+        with Pool(processes=4) as pool:
+            for gene in self.population:
+                func, args, kargs = wrapper(gene.update_fitness_for_proof, self.proof)
+                pool.apply_async(func(*args, **kargs))
+        # queue = Queue()
+
+        # def wrapper(func, *args, **kwargs):
+            # """func wrapper"""
+            # return func, args, kwargs
+
+        # for gene in self.population:
+            # queue.put(wrapper(gene.update_fitness_for_proof(self.proof)))
+
+        # def worker():
+            # """
+            # mp worker
+            # """
+            # while not queue.empty():
+                # func, args, kargs = queue.get()
+                # func(*args, **kargs)
+
+        # threads = []
+        # for _ in range(4):
+            # threads.append(Thread(target=worker))
+        # # threads = map(lambda i: Thread(target=worker), range(4))
+        # map(lambda th: th.start(), threads)
+        # map(lambda th: th.join(), threads)
 
     def crossover(self):
         """
@@ -191,9 +225,11 @@ class GPModel:
             return
         self.sort_sopulation()
         editable_amount = 1
-        for index in range(editable_amount):
-            self.population[index].modification()
-            self.population[index].update_fitness_for_proof(self.proof)
+        for gene in self.population[:editable_amount]:
+            gene.modification()
+            gene.update_fitness_for_proof(self.proof)
+            if gene.is_proof:
+                self.proofs.append(Gene(chromosome=gene.valid_tactics))
 
     def print_gene_by_index(self, index, print_pcript):
         """
@@ -213,7 +249,7 @@ class GPModel:
         """
         check population has a proof
         """
-        return self.proved_individual is None
+        return len(self.proofs) > 0
 
 def myrandint(begin, end):
     """

@@ -26,6 +26,7 @@ if __name__ == "__main__":
             gp_model.start(gen=10)
 
         if gp_model.is_proved():
-            pass
+            for gene in gp_model.proofs:
+                print(gene.chromosome)
         else:
             pass
