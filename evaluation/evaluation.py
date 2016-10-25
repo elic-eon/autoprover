@@ -54,7 +54,7 @@ def get_coq_states(result, proof, chromosome, threshold=-1):
         list of Coqstate
     """
     # the first and the last is useless
-    splited_result = split_coqtop_result(result, proof.theorem_name)[1:-1]
+    splited_result = split_coqtop_result(result, proof.theorem_name)[1:]
 
     offset = proof.offset
     coq_states = []
