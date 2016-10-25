@@ -93,6 +93,8 @@ class GPModel:
         next generation
         """
         self.update_fitness_for_population()
+        print("avg. Fitness\tavg. length")
+        print(self.average_fitness(), self.average_length_of_gene())
         self.current_generation += 1
         self.check_proof()
 
@@ -101,6 +103,9 @@ class GPModel:
         """
         for gene in self.population:
             if gene.is_proof:
+                print(gene.chromosome)
+                for state in gene.coq_states:
+                    print(state)
                 self.proofs.append(Gene(chromosome=gene.valid_tactics))
 
     def update_fitness_for_population(self):
@@ -218,6 +223,22 @@ class GPModel:
             gene.chromosome[randint(0, len(gene)-1)] = \
                     self.tactics.random_select()
 
+    def average_fitness(self):
+        """Calculate the average fitness for population.
+
+        Returns:
+            double: avg. fitness
+        """
+        return sum([e.fitness for e in self.population]) / len(self.population)
+
+    def average_length_of_gene(self):
+        """Calculate the average fitness for population.
+
+        Returns:
+            double: avg. fitness
+        """
+        return sum([len(e) for e in self.population]) / len(self.population)
+
     def edit(self):
         """Human involved modification of some gene of the population
         """
@@ -231,19 +252,12 @@ class GPModel:
             if gene.is_proof:
                 self.proofs.append(Gene(chromosome=gene.valid_tactics))
 
-    def print_gene_by_index(self, index, print_pcript):
+    def show_proofs(self):
+        """Show proofs found
         """
-        print a gene
-        """
-        # TODO move print function to gp.gene
-        # print(self.population[index].fitness)
-        print("{0} {1}".format(len(self.population[index].chromosome),
-                               self.population[index].fitness))
-        if print_pcript:
-            script = evaluation.preprocess(self.proof.theorem,
-                                           self.population[index].chromosome)
-            for tactic in script:
-                print(tactic)
+        if self.proofs:
+            for gene in self.proofs:
+                print(gene.format_output(self.proof))
 
     def is_proved(self):
         """

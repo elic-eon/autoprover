@@ -82,10 +82,10 @@ class Gene:
         self.fitness = evaluation.calculate_fitness(
             self.coq_states[proof.offset:])
         n_error = len(self.chromosome) - len(self.coq_states)
-        self.fitness -= n_error / len(self.chromosome)
-        print(self.fitness)
-        for state in self.coq_states:
-            print(state)
+        self.fitness += 1 - (n_error / len(self.chromosome)) ** 2
+        # print(self.fitness)
+        # for state in self.coq_states:
+            # print(state)
         return
 
     def print_lastest(self):
@@ -119,7 +119,10 @@ class Gene:
         Returns:
             list: valid tactics
         """
-        return [e.tactic for e in self.coq_states]
+        if self.coq_states:
+            return [e.tactic for e in self.coq_states]
+        else:
+            return self.chromosome
 
     def goal(self):
         """return goal of gene
@@ -131,3 +134,13 @@ class Gene:
         replace fitness by arg
         """
         self.fitness = fitness
+
+    def format_output(self, proof):
+        """Prepare a formated gene output
+        """
+        format_string = ""
+        format_string += "\n".join(proof.theorem_body)
+        format_string += "\nProof.\n"
+        format_string += "\n".join(["  "+e for e in self.valid_tactics[1:]])
+        format_string += "\n"
+        return format_string

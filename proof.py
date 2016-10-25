@@ -30,6 +30,12 @@ class Proof:
                 return line.split()[1]
 
     @property
+    def theorem_body(self):
+        """Only theorem
+        """
+        return self.theorem[:-self.offset]
+
+    @property
     def pre_feed_tactic(self):
         """pre-feed tactic including 'Proof.'
         """
@@ -44,41 +50,3 @@ class Proof:
                 return len(self.theorem)-index
         self.theorem.append("Proof.")
         return 1
-
-def brute_force_search(proof, tactics):
-    pool = [([x]) for x in tactics]
-
-    poolBuf = []
-    for (tacticList, steps) in pool:
-        script = evaluation.preprocess(proof.theorem, tacticList)
-        result = evaluation.run_coqtop(script)
-        s = evaluation.evaluate_result(result, proof.theoremName)
-        if s[1] > steps:
-            poolBuf += [(tacticList, s[1])]
-    else:
-        pool = [] + poolBuf
-        poolBuf = []
-
-    # while (True):
-    for i in range(100):
-        for (tacticList, steps) in pool:
-            poolBuf += [(tacticList+[x], steps) for x in tactics]
-        else:
-            pool = [] + poolBuf
-            poolBuf = []
-
-        for (tacticList, steps) in pool:
-            script = evaluation.preprocess(proof.theorem, tacticList)
-            result = evaluation.run_coqtop(script)
-            s = evaluation.evaluate_result(result, proof.theoremName)
-            if s[0] is True:
-                print("Found")
-                print(tacticList)
-                return
-            elif s[1] > steps:
-                poolBuf += [(tacticList, s[1])]
-        else:
-            pool = [] + poolBuf
-            poolBuf = []
-
-        print(len(pool))

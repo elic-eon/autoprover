@@ -1,32 +1,52 @@
 #!/usr/bin/env python3
+"""Autoprover
+"""
 
 # bench 1000 population: 42.31s user 13.83s system 98% cpu 56.944 total
 from proof import Proof
-from proof import brute_force_search
 from utils import parser
 from utils.tactic import TacticsSet
 from utils.log import reg_logger
 from gp.model import GPModel
 
+HELP_MESSAGE = """help(h): Print help message.
+next(n) <step>: Start n generation.
+show-property(show-prop): Show property of GP model.
+edit(e): Edit best gene.
+show-proofs(sp): Show proofs which is found.
+"""
 
-if __name__ == "__main__":
+def main():
+    """Main program
+    """
     reg_logger()
     args = parser.get_args()
     tactics = TacticsSet(args.tacticBase)
     proof = Proof(input_file=args.file, tactics=tactics)
 
-    if args.bruteForce:
-        brute_force_search(proof=proof, tactics=tactics)
-    else:
-        gp_model = GPModel(args=args, proof=proof, tactics=tactics)
-        # gpModel.showProp()
-        gp_model.start(gen=10)
-        for _ in range(9):
-            gp_model.edit()
-            gp_model.start(gen=10)
+    gp_model = GPModel(args=args, proof=proof, tactics=tactics)
+    while True:
+        try:
+            input_string = input("> ")
+        except EOFError:
+            break
 
-        if gp_model.is_proved():
-            for gene in gp_model.proofs:
-                print(gene.chromosome)
-        else:
-            pass
+        input_list = input_string.split(" ")
+        if input_list[0] == "h" or input_list[0] == "help":
+            print(HELP_MESSAGE)
+        elif input_list[0] == "n" or input_list[0] == "next":
+            try:
+                step = int(input_list[1])
+            except IndexError:
+                print("Invaild command")
+            gp_model.start(gen=step)
+        elif input_list[0] == "show-property" or input_list[0] == "show-prop":
+            gp_model.show_prop()
+        elif input_list[0] == "edit" or input_list[0] == "e":
+            gp_model.edit()
+        elif input_list[0] == "show-proof" or input_list[0] == "sp":
+            gp_model.show_proofs()
+
+
+if __name__ == "__main__":
+    main()
