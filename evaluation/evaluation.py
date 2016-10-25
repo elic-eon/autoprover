@@ -80,6 +80,7 @@ def get_coq_states(result, proof, chromosome, threshold=-1):
         elif proof.tactics.is_unrepeatable(chromosome[i-offset]):
             if chromosome[i-offset] in tactics_set:
                 error_count += 1
+                tactics_set.add(chromosome[i-offset])
             else:
                 tactics_set.add(chromosome[i-offset])
         else:
