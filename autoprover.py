@@ -13,6 +13,7 @@ HELP_MESSAGE = """help(h): Print help message.
 next(n) <step>: Start n generation.
 show-property(show-prop): Show property of GP model.
 edit(e): Edit best gene.
+list(l): List some property of population.
 show-proofs(sp): Show proofs which is found.
 """
 
@@ -34,16 +35,16 @@ def main():
         input_list = input_string.split(" ")
         if input_list[0] == "h" or input_list[0] == "help":
             print(HELP_MESSAGE)
+        elif input_list[0] == "show-property" or input_list[0] == "show-prop":
+            gp_model.show_prop()
+        elif input_list[0] == "show-proof" or input_list[0] == "sp":
+            gp_model.show_proofs()
         elif input_list[0] == "n" or input_list[0] == "next":
             try:
                 step = int(input_list[1])
             except IndexError:
                 print("Invaild command")
             gp_model.start(gen=step)
-        elif input_list[0] == "q" or input_list[0] == "quit":
-            break
-        elif input_list[0] == "show-property" or input_list[0] == "show-prop":
-            gp_model.show_prop()
         elif input_list[0] == "edit" or input_list[0] == "e":
             try:
                 index = input_list[1]
@@ -56,8 +57,6 @@ def main():
             except IndexError:
                 print("Invaild command")
             gp_model.list(sub_cmd)
-        elif input_list[0] == "show-proof" or input_list[0] == "sp":
-            gp_model.show_proofs()
         else:
             print("Invaild command")
 
