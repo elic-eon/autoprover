@@ -51,6 +51,7 @@ class GPModel:
         """
         create population by size
         """
+        print("Initializing population.")
         self.population = []
         for _ in range(size):
             self.population.append(Gene(self.tactics))
@@ -61,6 +62,7 @@ class GPModel:
         """
         self.current_generation = 1
         self.update_fitness_for_population()
+        self.sort_sopulation()
         self.check_proof()
 
     def start(self, gen=None):
@@ -96,6 +98,7 @@ class GPModel:
         print("avg. Fitness\tavg. length")
         print(self.average_fitness(), self.average_length_of_gene())
         self.current_generation += 1
+        self.sort_sopulation()
         self.check_proof()
 
     def check_proof(self):
@@ -167,7 +170,6 @@ class GPModel:
         """
         sort population by length and fitness
         """
-        self.population.sort(key=len, reverse=False)
         self.population.sort(key=lambda x: x.fitness, reverse=True)
 
     def cross_below_cross_rate(self):
@@ -239,11 +241,19 @@ class GPModel:
         """
         return sum([len(e) for e in self.population]) / len(self.population)
 
-    def edit(self):
+    def edit(self, index=None):
         """Human involved modification of some gene of the population
         """
         if self.current_generation > self.max_generation:
             return
+        if index is not None:
+            gene = self.population[index]
+            gene.modification()
+            gene.update_fitness_for_proof(self.proof)
+            if gene.is_proof:
+                self.proofs.append(Gene(chromosome=gene.valid_tactics))
+            return
+
         self.sort_sopulation()
         editable_amount = 1
         for gene in self.population[:editable_amount]:
@@ -258,6 +268,27 @@ class GPModel:
         if self.proofs:
             for gene in self.proofs:
                 print(gene.format_output(self.proof))
+        else:
+            print("There is not proof for now.")
+
+    def list(self, argv):
+        """List property of some individual.
+
+        Args:
+            argv(list): sub command of list function.
+        """
+        def get_interval(interval):
+            """Get begin and end of interval
+            """
+            interval_list = interval.split("-")
+            if len(interval_list) == 1:
+                return (int(interval_list[0]), int(interval_list[0])+1)
+            else:
+                return (int(interval_list[0]), int(interval_list[1])+1)
+        (begin, end) = get_interval(argv[0])
+        if len(argv) == 1:
+            for gene in self.population[begin:end]:
+                gene.print_progress()
 
     def is_proved(self):
         """

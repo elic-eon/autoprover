@@ -40,12 +40,26 @@ def main():
             except IndexError:
                 print("Invaild command")
             gp_model.start(gen=step)
+        elif input_list[0] == "q" or input_list[0] == "quit":
+            break
         elif input_list[0] == "show-property" or input_list[0] == "show-prop":
             gp_model.show_prop()
         elif input_list[0] == "edit" or input_list[0] == "e":
-            gp_model.edit()
+            try:
+                index = input_list[1]
+                gp_model.edit(index=int(index))
+            except IndexError:
+                gp_model.edit()
+        elif input_list[0] == "list" or input_list[0] == "l":
+            try:
+                sub_cmd = input_list[1:]
+            except IndexError:
+                print("Invaild command")
+            gp_model.list(sub_cmd)
         elif input_list[0] == "show-proof" or input_list[0] == "sp":
             gp_model.show_proofs()
+        else:
+            print("Invaild command")
 
 
 if __name__ == "__main__":
