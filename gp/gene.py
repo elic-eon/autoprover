@@ -124,10 +124,11 @@ class Gene:
         else:
             return self.chromosome
 
+    @property
     def goal(self):
         """return goal of gene
         """
-        return self.coq_states[-1].goal()
+        return self.coq_states[-1].goal
 
     def update_fitness(self, fitness):
         """
@@ -144,3 +145,9 @@ class Gene:
         format_string += "\n".join(["  "+e for e in self.valid_tactics[1:]])
         format_string += "\n"
         return format_string
+
+    def print_progress(self):
+        """Print all state of gene
+        """
+        for state in self.coq_states:
+            print(state)
