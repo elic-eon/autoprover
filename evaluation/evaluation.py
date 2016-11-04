@@ -60,6 +60,16 @@ def get_coq_states(result, proof, chromosome, threshold=-1):
     coq_states = []
     tactics_set = set()
     error_count = 0
+
+    def check_overlap(coq_states, append_state):
+        """If a state is equal to previous state, remove all element from that.
+        """
+        for index, state in enumerate(coq_states):
+            if state == append_state:
+                del coq_states[index+1:]
+                return
+        coq_states.append(append_state)
+
     for (i, step) in enumerate(splited_result):
         if i < offset:
             coq_states.append(CoqState(step, proof.pre_feed_tactic[i]))
@@ -80,11 +90,12 @@ def get_coq_states(result, proof, chromosome, threshold=-1):
         elif proof.tactics.is_unrepeatable(chromosome[i-offset]):
             if chromosome[i-offset] in tactics_set:
                 error_count += 1
-                tactics_set.add(chromosome[i-offset])
+                check_overlap(coq_states, state)
             else:
                 tactics_set.add(chromosome[i-offset])
+                check_overlap(coq_states, state)
         else:
-            coq_states.append(state)
+            check_overlap(coq_states, state)
 
         if error_count == threshold:
             break
@@ -117,8 +128,18 @@ def calculate_fitness(coq_states):
     """
     score = 0.0
     for state in coq_states:
+        l_hyp = len(state.hypothesis)
+        l_goal = len(state.goal)
+        if l_hyp > 100:
+            score -= l_hyp / (l_hyp + 100)
+            print(state.hypothesis)
+            continue
+        if l_goal > 200:
+            score -= l_goal / (l_goal + 200)
+            # print(state.goal)
+            continue
         try:
-            score += len(state.hypothesis) / len(state.goal)
+            score += l_hyp / l_goal
         except ZeroDivisionError:
             print(state.data)
             exit(1)
