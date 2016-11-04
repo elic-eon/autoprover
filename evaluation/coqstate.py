@@ -24,14 +24,12 @@ class CoqState:
             self.parse(text)
 
     def __eq__(self, other):
-        return self._goal == other.goal
+        return self.goal == other.goal and self.hypothesis == other.hypothesis
 
     def __str__(self):
-        return '> %s\n%s\n%s\n%s' % (self.tactic,
-                                     self.hypothesis,
-                                     "============================",
-                                     self.goal)
-
+        return 'Tactic: %s\n%s\n%s\n%s' % (self.tactic, self.hypothesis,
+                                           "============================",
+                                           self.goal)
     @property
     def is_proof(self):
         """If it's a proof
