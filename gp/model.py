@@ -65,6 +65,12 @@ class GPModel:
         self.sort_sopulation()
         self.check_proof()
 
+    def is_proved(self):
+        """
+        check population has a proof
+        """
+        return len(self.proofs) > 0
+
     def start(self, gen=None):
         """
         run the model
@@ -95,8 +101,9 @@ class GPModel:
         next generation
         """
         self.update_fitness_for_population()
-        print("avg. Fitness\tavg. length")
-        print(self.average_fitness(), self.average_length_of_gene())
+        print("Avg. fitness\tAvg. length")
+        print("{0:.8f}\t{1}".format(self.average_fitness(),
+                                    self.average_length_of_gene()))
         self.current_generation += 1
         self.sort_sopulation()
         self.check_proof()
@@ -154,15 +161,23 @@ class GPModel:
         self.sort_sopulation()
         elite_amount = round(self.elite_rate * self.population_size)
         # preserve from the top
-        new_population = [] + self.population[:elite_amount] # not deep copy
-        for _ in range(elite_amount, int(self.population_size/2)):
+        new_population = [ele for ele in self.population if ele.ttl > 0]
+        for individual in new_population:
+            if individual.ttl > 0:
+                individual.ttl -= 1
+        new_population += self.population[:elite_amount]
+
+        while len(new_population) < self.population_size:
             # newGene = self.crossBelowCrossRate()
             new_gene, new_gene2 = self.cross_on_arb_seq()
             if random() <= self.mutate_rate:
                 self.mutate(new_gene)
+            new_population.append(new_gene)
+            if len(new_population) == self.population_size:
+                break
+
             if random() <= self.mutate_rate:
                 self.mutate(new_gene2)
-            new_population.append(new_gene)
             new_population.append(new_gene2)
         self.population = new_population
 
@@ -241,26 +256,18 @@ class GPModel:
         """
         return sum([len(e) for e in self.population]) / len(self.population)
 
-    def edit(self, index=None):
+    def edit(self, index):
         """Human involved modification of some gene of the population
         """
         if self.current_generation > self.max_generation:
             return
-        if index is not None:
-            gene = self.population[index]
-            gene.modification()
-            gene.update_fitness_for_proof(self.proof)
-            if gene.is_proof:
-                self.proofs.append(Gene(chromosome=gene.valid_tactics))
-            return
-
-        self.sort_sopulation()
-        editable_amount = 1
-        for gene in self.population[:editable_amount]:
-            gene.modification()
-            gene.update_fitness_for_proof(self.proof)
-            if gene.is_proof:
-                self.proofs.append(Gene(chromosome=gene.valid_tactics))
+        print("Edit Gene {} now.".format(index))
+        gene = self.population[index]
+        gene.modification()
+        gene.update_fitness_for_proof(self.proof)
+        if gene.is_proof:
+            self.proofs.append(Gene(chromosome=gene.valid_tactics))
+        return
 
     def show_proofs(self):
         """Show proofs found
@@ -285,16 +292,35 @@ class GPModel:
                 return (int(interval_list[0]), int(interval_list[0])+1)
             else:
                 return (int(interval_list[0]), int(interval_list[1])+1)
+        if not argv:
+            return
+
         (begin, end) = get_interval(argv[0])
         if len(argv) == 1:
-            for gene in self.population[begin:end]:
+            for index, gene in enumerate(self.population[begin:end]):
+                print("{0}: {1:.8f}".format(index, gene.fitness))
                 gene.print_progress()
+        elif argv[1] == "fitness":
+            for index, gene in enumerate(self.population[begin:end]):
+                print("{0}: {1:.8f}".format(index, gene.fitness))
+        elif argv[1] == "chromosome":
+            for index, gene in enumerate(self.population[begin:end]):
+                print("{0}: {1}".format(index, gene.chromosome))
+        elif argv[1] == "ttl":
+            for index, gene in enumerate(self.population[begin:end]):
+                print("{0}: {1}".format(index, gene.ttl))
 
-    def is_proved(self):
+    def set_attributes(self, argv):
+        """Set attributes of population
         """
-        check population has a proof
-        """
-        return len(self.proofs) > 0
+        if argv[0] == "population" or argv[0] == "pop":
+            if argv[1] == "ttl":
+                self.population[int(argv[2])].ttl = int(argv[3])
+
+    def defrag(self, index_list):
+        """Defrag some gene"""
+        for index in index_list:
+            self.population[index].defrag(self.proof)
 
 def myrandint(begin, end):
     """
