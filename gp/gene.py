@@ -41,6 +41,7 @@ class Gene:
             self.chromosome = random_chromosome(tactics)
         self.fitness = 0
         self.coq_states = None
+        self.ttl = 0
 
     def __len__(self):
         return len(self.chromosome)
@@ -64,6 +65,23 @@ class Gene:
             int: length of self.coq_states
         """
         return len(self.coq_states)
+
+    @property
+    def valid_tactics(self):
+        """valid tactics from self.coq_states
+        Returns:
+            list: valid tactics
+        """
+        if self.coq_states:
+            return [e.tactic for e in self.coq_states]
+        else:
+            return self.chromosome
+
+    @property
+    def goal(self):
+        """return goal of gene
+        """
+        return self.coq_states[-1].goal
 
     def update_fitness_for_proof(self, proof):
         """re-evaluate fitness for a proof
@@ -104,37 +122,41 @@ class Gene:
         """
         if self.is_proof:
             return
-        print("Human involve")
+
         self.print_lastest()
-        try:
-            input_tactic = input("Enter tactic: ")
-        except EOFError:
-            return
-        self.chromosome.append(input_tactic)
-        # print(self.chromosome)
-
-    @property
-    def valid_tactics(self):
-        """valid tactics from self.coq_states
-        Returns:
-            list: valid tactics
-        """
-        if self.coq_states:
-            return [e.tactic for e in self.coq_states]
-        else:
-            return self.chromosome
-
-    @property
-    def goal(self):
-        """return goal of gene
-        """
-        return self.coq_states[-1].goal
-
-    def update_fitness(self, fitness):
-        """
-        replace fitness by arg
-        """
-        self.fitness = fitness
+        while True:
+            try:
+                edit_cmd = input("edit > ")
+                edit_cmd = edit_cmd.split()
+            except EOFError:
+                return
+            if edit_cmd[0] == "state":
+                self.print_progress()
+            elif edit_cmd[0] == "list":
+                for index, tactic in enumerate(self.chromosome):
+                    print("{}: {}".format(index, tactic))
+            elif edit_cmd[0] == "insert" or edit_cmd[0] == "replace":
+                if len(edit_cmd) < 2:
+                    print("Expect a index here.")
+                    continue
+                else:
+                    edit_index = int(edit_cmd[1])
+                    if edit_cmd[0] == "replace":
+                        del self.chromosome[edit_index]
+                    input_tactic = input("Please type a tactic: ")
+                    self.chromosome.insert(edit_index, input_tactic)
+                    break
+            elif edit_cmd[0] == "append":
+                input_tactic = input("Please type a tactic: ")
+                self.chromosome.append(input_tactic)
+                break
+            else:
+                print("state: all states")
+                print("list: print chromosome.")
+                print("insert <index>: insert a tactic before the index.")
+                print("replace <index>: replace the tactic of <index>-th.")
+                print("append: append the tactic at the end of chromosome")
+        print(self.chromosome)
 
     def format_output(self, proof):
         """Prepare a formated gene output
@@ -151,3 +173,18 @@ class Gene:
         """
         for state in self.coq_states:
             print(state)
+
+    def defrag(self, proof):
+        """Defragment gene
+        """
+        new_chromosome = [] + self.valid_tactics[proof.offset:]
+        i = proof.offset
+        print(self.chromosome)
+        for tactic in self.chromosome:
+            if i < len(self.valid_tactics) and tactic == self.valid_tactics[i]:
+                i += 1
+                continue
+            else:
+                new_chromosome.append(tactic)
+        self.chromosome = new_chromosome
+        print(self.chromosome)
