@@ -40,11 +40,14 @@ def main():
         elif input_list[0] == "show-proof" or input_list[0] == "sp":
             gp_model.show_proofs()
         elif input_list[0] == "n" or input_list[0] == "next":
+            step = int(input_list[1])
+            gp_model.start(gen=step)
+        elif input_list[0] == "defrag":
             try:
-                step = int(input_list[1])
+                index = int(input_list[1])
             except IndexError:
                 print("Invaild command")
-            gp_model.start(gen=step)
+            gp_model.defrag(index_list=[index])
         elif input_list[0] == "edit" or input_list[0] == "e":
             try:
                 index = input_list[1]
@@ -52,11 +55,11 @@ def main():
             except IndexError:
                 gp_model.edit()
         elif input_list[0] == "list" or input_list[0] == "l":
-            try:
-                sub_cmd = input_list[1:]
-            except IndexError:
-                print("Invaild command")
+            sub_cmd = input_list[1:]
             gp_model.list(sub_cmd)
+        elif input_list[0] == "set" or input_list[0] == "s":
+            sub_cmd = input_list[1:]
+            gp_model.set_attributes(sub_cmd)
         else:
             print("Invaild command")
 
