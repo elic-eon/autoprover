@@ -2,3 +2,4 @@ __pycache__/
 *.aux
 *.glob
 *.vo
+*.tmp
