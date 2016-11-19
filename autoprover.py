@@ -53,13 +53,18 @@ def main():
                 index = input_list[1]
                 gp_model.edit(index=int(index))
             except IndexError:
-                gp_model.edit()
+                gp_model.edit(index=0)
         elif input_list[0] == "list" or input_list[0] == "l":
             sub_cmd = input_list[1:]
             gp_model.list(sub_cmd)
         elif input_list[0] == "set" or input_list[0] == "s":
             sub_cmd = input_list[1:]
-            gp_model.set_attributes(sub_cmd)
+            try:
+                gp_model.set_attributes(sub_cmd)
+            except IndexError:
+                continue
+        elif input_list[0] == "stats":
+            gp_model.print_stats()
         else:
             print("Invaild command")
 

@@ -6,6 +6,7 @@ define model for gp
 from multiprocessing import Pool
 from random import random, randint
 from math import floor
+import operator
 from evaluation import evaluation
 from gp.gene import Gene
 
@@ -31,6 +32,7 @@ class GPModel:
         self.population = None
         self.current_generation = 1
         self.proofs = []
+        self.rules = []
         self.init_population(self.population_size)
         self.pre_process()
 
@@ -91,6 +93,8 @@ class GPModel:
                 for index in range(0, 30):
                     self.population[index].print_lastest()
             self.crossover()
+            self.update_fitness_for_population()
+            self.apply_rules()
             self.next_generation()
             if self.current_generation > self.max_generation:
                 break
@@ -100,7 +104,6 @@ class GPModel:
         """
         next generation
         """
-        self.update_fitness_for_population()
         print("Avg. fitness\tAvg. length")
         print("{0:.8f}\t{1}".format(self.average_fitness(),
                                     self.average_length_of_gene()))
@@ -153,6 +156,12 @@ class GPModel:
         # # threads = map(lambda i: Thread(target=worker), range(4))
         # map(lambda th: th.start(), threads)
         # map(lambda th: th.join(), threads)
+
+    def apply_rules(self):
+        """Perform action by rules"""
+        for gene in self.population:
+            for rule in self.rules:
+                pass
 
     def crossover(self):
         """
@@ -226,9 +235,22 @@ class GPModel:
         new_chromosome2 += gene_of_p2.chromosome[:p2_begin]
         new_chromosome2 += gene_of_p1.chromosome[p1_begin:p1_end]
         new_chromosome2 += gene_of_p2.chromosome[p2_end:]
-        # print("{0} {1} {2} {3}".format(len(geneOfParentOne.chromosome)
-            # ,len(geneOfParentTwo.chromosome), len(newChromosome), len(newChromosome2)))
+        self.remove_repeatable(new_chromosome)
+        self.remove_repeatable(new_chromosome2)
         return Gene(chromosome=new_chromosome), Gene(chromosome=new_chromosome2)
+
+    def remove_repeatable(self, chromosome):
+        """
+        remove repeatable tactic
+        """
+        tactic_set = set()
+
+        for index, tactic in enumerate(chromosome):
+            if self.tactics.is_unrepeatable(tactic):
+                if tactic in tactic_set:
+                    del chromosome[index]
+                else:
+                    tactic_set.add(tactic)
 
     def mutate(self, gene):
         """
@@ -256,14 +278,14 @@ class GPModel:
         """
         return sum([len(e) for e in self.population]) / len(self.population)
 
-    def edit(self, index):
+    def edit(self, index, data=None):
         """Human involved modification of some gene of the population
         """
         if self.current_generation > self.max_generation:
             return
         print("Edit Gene {} now.".format(index))
         gene = self.population[index]
-        gene.modification()
+        gene.modification(data=data)
         gene.update_fitness_for_proof(self.proof)
         if gene.is_proof:
             self.proofs.append(Gene(chromosome=gene.valid_tactics))
@@ -292,7 +314,7 @@ class GPModel:
                 return (int(interval_list[0]), int(interval_list[0])+1)
             else:
                 return (int(interval_list[0]), int(interval_list[1])+1)
-        if not argv:
+        if not argv or not argv[0]:
             return
 
         (begin, end) = get_interval(argv[0])
@@ -321,6 +343,25 @@ class GPModel:
         """Defrag some gene"""
         for index in index_list:
             self.population[index].defrag(self.proof)
+
+    def print_stats(self):
+        """print tactic usage"""
+        stats = {e: 0 for e in self.tactics.all_tactics}
+        for gene in self.population:
+            for tactic in gene.chromosome:
+                try:
+                    stats[tactic] += 1
+                except KeyError:
+                    stats[tactic] = 1
+
+        sorted_stats = sorted(stats.items(),
+                              key=operator.itemgetter(1), reverse=True)
+        total_tactic = sum(stats.values())
+        sum_of_usage = 0.0
+        for tactic, count in sorted_stats:
+            usage = count / total_tactic
+            sum_of_usage += usage
+            print("{0}: {1:.4f}%".format(tactic, usage*100))
 
 def myrandint(begin, end):
     """
