@@ -92,7 +92,8 @@ class CoqState:
                 self._error = True
                 self._is_proof = True
                 return
-            elif (line.find("Error:") > -1) or line.startswith("H, H"):
+            elif (line.find("Error:") > -1 or line.startswith("H, H")
+                  or line.startswith("IHn, H")):
                 self._error = True
                 return
             if i > 1:
