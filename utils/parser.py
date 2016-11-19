@@ -36,8 +36,8 @@ def get_args():
         help="the percentage of elitism, default is 0")
     parser.add_argument(
         "-c", "--cross-rate", dest='crossRate',
-        type=float, default=0.5,
-        help="a cross rate, defalut is 0.5")
+        type=float, default=0.7,
+        help="a cross rate, defalut is 0.7")
     parser.add_argument(
         "-t", "--cross-type", dest='crossType',
         type=int, default=0,
