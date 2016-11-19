@@ -36,6 +36,11 @@ class TacticsSet():
         logging.info("%d tactics loaded",
                      len(self.repeatable) + len(self.unrepeatable))
 
+    @property
+    def all_tactics(self):
+        """return all tactic"""
+        return self.repeatable | self.unrepeatable
+
     def random_select(self):
         """
         return a tactic in the set
