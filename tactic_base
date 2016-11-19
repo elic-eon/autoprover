@@ -59,3 +59,4 @@ split
 simpl,trivial,rewrite plus_comm,rewrite mult_comm,eapply sym_not_eq,eapply eq_sym
 inversion H,inversion IHn,inversion IHk
 inversion H0,inversion H1
+intros
