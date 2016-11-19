@@ -16,3 +16,4 @@ Fixpoint number n (f : nat -> Z) :=
 
 Theorem div3 : forall n d,
   (number n d) mod 3 = (sumdigits n d) mod 3.
+Proof.
