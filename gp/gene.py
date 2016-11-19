@@ -100,7 +100,8 @@ class Gene:
         self.fitness = evaluation.calculate_fitness(
             self.coq_states[proof.offset:])
         n_error = len(self.chromosome) - len(self.coq_states)
-        self.fitness += 1 - (n_error / len(self.chromosome)) ** 2
+        # self.fitness += 1 - (n_error / len(self.chromosome)) ** 2
+        self.fitness += 1 - (n_error / len(self.chromosome))
         # print(self.fitness)
         # for state in self.coq_states:
             # print(state)
@@ -117,7 +118,7 @@ class Gene:
         print(self.coq_states[-1])
         return
 
-    def modification(self):
+    def modification(self, data=None):
         """Modify one tactic of gene
         """
         if self.is_proof:
@@ -126,36 +127,42 @@ class Gene:
         self.print_lastest()
         while True:
             try:
-                edit_cmd = input("edit > ")
-                edit_cmd = edit_cmd.split()
+                if data:
+                    edit_cmd = data
+                else:
+                    edit_cmd = input("edit > ")
+                    edit_cmd = edit_cmd.split()
             except EOFError:
                 return
-            if edit_cmd[0] == "state":
-                self.print_progress()
-            elif edit_cmd[0] == "list":
-                for index, tactic in enumerate(self.chromosome):
-                    print("{}: {}".format(index, tactic))
-            elif edit_cmd[0] == "insert" or edit_cmd[0] == "replace":
-                if len(edit_cmd) < 2:
-                    print("Expect a index here.")
-                    continue
-                else:
-                    edit_index = int(edit_cmd[1])
-                    if edit_cmd[0] == "replace":
-                        del self.chromosome[edit_index]
+            try:
+                if edit_cmd[0] == "state":
+                    self.print_progress()
+                elif edit_cmd[0] == "list":
+                    for index, tactic in enumerate(self.chromosome):
+                        print("{}: {}".format(index, tactic))
+                elif edit_cmd[0] == "insert" or edit_cmd[0] == "replace":
+                    if len(edit_cmd) < 2:
+                        print("Expect a index here.")
+                        continue
+                    else:
+                        edit_index = int(edit_cmd[1])
+                        if edit_cmd[0] == "replace":
+                            del self.chromosome[edit_index]
+                        input_tactic = input("Please type a tactic: ")
+                        self.chromosome.insert(edit_index, input_tactic)
+                        break
+                elif edit_cmd[0] == "append":
                     input_tactic = input("Please type a tactic: ")
-                    self.chromosome.insert(edit_index, input_tactic)
+                    self.chromosome.append(input_tactic)
                     break
-            elif edit_cmd[0] == "append":
-                input_tactic = input("Please type a tactic: ")
-                self.chromosome.append(input_tactic)
-                break
-            else:
-                print("state: all states")
-                print("list: print chromosome.")
-                print("insert <index>: insert a tactic before the index.")
-                print("replace <index>: replace the tactic of <index>-th.")
-                print("append: append the tactic at the end of chromosome")
+                else:
+                    print("state: all states")
+                    print("list: print chromosome.")
+                    print("insert <index>: insert a tactic before the index.")
+                    print("replace <index>: replace the tactic of <index>-th.")
+                    print("append: append the tactic at the end of chromosome")
+            except IndexError:
+                continue
         print(self.chromosome)
 
     def format_output(self, proof):
