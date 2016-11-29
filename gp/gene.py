@@ -99,7 +99,10 @@ class Gene:
 
         self.fitness = evaluation.calculate_fitness(
             self.coq_states[proof.offset:])
-        n_error = len(self.chromosome) - len(self.coq_states)
+        if len(self.chromosome) <= 20:
+            n_error = 0
+        else:
+            n_error = len(self.chromosome) - len(self.coq_states)
         # self.fitness += 1 - (n_error / len(self.chromosome)) ** 2
         self.fitness += 1 - (n_error / len(self.chromosome))
         # print(self.fitness)
@@ -124,7 +127,8 @@ class Gene:
         if self.is_proof:
             return
 
-        self.print_lastest()
+        if data is None:
+            self.print_lastest()
         while True:
             try:
                 if data:
@@ -152,8 +156,11 @@ class Gene:
                         self.chromosome.insert(edit_index, input_tactic)
                         break
                 elif edit_cmd[0] == "append":
-                    input_tactic = input("Please type a tactic: ")
-                    self.chromosome.append(input_tactic)
+                    if len(edit_cmd) == 2 and edit_cmd[1]:
+                        self.chromosome.append(edit_cmd[1])
+                    else:
+                        input_tactic = input("Please type a tactic: ")
+                        self.chromosome.append(input_tactic)
                     break
                 else:
                     print("state: all states")
@@ -163,7 +170,10 @@ class Gene:
                     print("append: append the tactic at the end of chromosome")
             except IndexError:
                 continue
-        print(self.chromosome)
+        if data is None:
+            print(self.chromosome)
+        else:
+            print("append by trigger!")
 
     def format_output(self, proof):
         """Prepare a formated gene output
