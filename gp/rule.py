@@ -5,28 +5,31 @@ from gp.trigger import Trigger
 
 class Rule:
     """base class"""
-    def __init__(self, trigger=None, action_list=[]):
+    def __init__(self, trigger=None, action_list=None):
         self.trigger = trigger
         self.action_list = action_list
 
-    def setTrigger(self):
-        pass
+    def set_trigger(self, trigger):
+        """set trigger"""
+        self.trigger = trigger
 
-    def printTrigger(self):
-        pass
+    def print_trigger(self):
+        """print trigger"""
+        print(self.trigger)
 
 class GeneRule(Rule):
     """rules applied on gene"""
-    pass
+    def __init__(self, trigger=None, action_list=None, proof=None):
+        super().__init__(trigger, action_list)
+        self.proof = proof
+        self.type = "gene"
 
-def main():
-    """main test funciton"""
-    cmd = ["edit", "1"]
-    data = ["append",
-            "change ((d (S n) + 10 * number n d) mod 3 = (d (S n) + sumdigits n d) mod 3)."]
-    act = Action(cmd=cmd, data=data)
-    trigger = Trigger(last_goal="number (S n) d mod 3 = sumdigits (S n) d mod 3")
-    a_rule = Rule(trigger=trigger, action_list=[act])
-
-if __name__ == "__main__":
-    main()
+    def check_and_apply(self, gene):
+        """Check gene is need to be applied action or not"""
+        ret = self.trigger.test(gene)
+        if ret["status"]:
+            for _ in range(ret["count"]):
+                for action in self.action_list:
+                    action.apply(gene)
+        if ret["update"]:
+            gene.update_fitness_for_proof(self.proof)
