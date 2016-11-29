@@ -7,8 +7,10 @@ from multiprocessing import Pool
 from random import random, randint
 from math import floor
 import operator
-from evaluation import evaluation
 from gp.gene import Gene
+from gp.rule import GeneRule
+from gp.action import GeneAction
+from gp.trigger import GeneTrigger
 
 #TODO fox too many instant
 class GPModel:
@@ -133,35 +135,15 @@ class GPModel:
             for gene in self.population:
                 func, args, kargs = wrapper(gene.update_fitness_for_proof, self.proof)
                 pool.apply_async(func(*args, **kargs))
-        # queue = Queue()
-
-        # def wrapper(func, *args, **kwargs):
-            # """func wrapper"""
-            # return func, args, kwargs
-
-        # for gene in self.population:
-            # queue.put(wrapper(gene.update_fitness_for_proof(self.proof)))
-
-        # def worker():
-            # """
-            # mp worker
-            # """
-            # while not queue.empty():
-                # func, args, kargs = queue.get()
-                # func(*args, **kargs)
-
-        # threads = []
-        # for _ in range(4):
-            # threads.append(Thread(target=worker))
-        # # threads = map(lambda i: Thread(target=worker), range(4))
-        # map(lambda th: th.start(), threads)
-        # map(lambda th: th.join(), threads)
 
     def apply_rules(self):
         """Perform action by rules"""
+        if len(self.rules) == 0:
+            return
         for gene in self.population:
             for rule in self.rules:
-                pass
+                if rule.type == "gene":
+                    rule.check_and_apply(gene)
 
     def crossover(self):
         """
@@ -338,6 +320,38 @@ class GPModel:
         if argv[0] == "population" or argv[0] == "pop":
             if argv[1] == "ttl":
                 self.population[int(argv[2])].ttl = int(argv[3])
+        elif argv[0] == "rule":
+            trigger = GeneTrigger(last_goal="number (S n) d mod 3 = sumdigits (S n) d mod 3")
+            cmd = ["edit"]
+            data = ["append",
+                    "change ((d (S n) + 10 * number n d) mod 3 = (d (S n) + sumdigits n d) mod 3)."]
+            act = GeneAction(cmd=cmd, data=data)
+            self.rules.append(GeneRule(trigger=trigger, action_list=[act],
+                                       proof=self.proof))
+        elif argv[0] == "rule2":
+            trigger = GeneTrigger(tactic_restriction=("rewrite Zplus_mod.", 2))
+            trigger2 = GeneTrigger(tactic_restriction=("rewrite Zmult_mod.", 2))
+            cmd = ["penalty"]
+            act = GeneAction(cmd=cmd, data="1.2")
+            self.rules.append(GeneRule(trigger=trigger, action_list=[act],
+                                       proof=self.proof))
+            self.rules.append(GeneRule(trigger=trigger2, action_list=[act],
+                                       proof=self.proof))
+        elif argv[0] == "rule3":
+            trigger = GeneTrigger(tactic_restriction=("rewrite -> plus_n_O.", 2))
+            trigger2 = GeneTrigger(tactic_restriction=("rewrite <- mult_0_l at 1.", 2))
+            trigger3 = GeneTrigger(tactic_restriction=("rewrite <- mult_plus_distr_r.", 2))
+            trigger4 = GeneTrigger(tactic_restriction=("rewrite -> mult_plus_distr_l.", 2))
+            cmd = ["penalty"]
+            act = GeneAction(cmd=cmd, data="1.2")
+            self.rules.append(GeneRule(trigger=trigger, action_list=[act],
+                                       proof=self.proof))
+            self.rules.append(GeneRule(trigger=trigger2, action_list=[act],
+                                       proof=self.proof))
+            self.rules.append(GeneRule(trigger=trigger3, action_list=[act],
+                                       proof=self.proof))
+            self.rules.append(GeneRule(trigger=trigger4, action_list=[act],
+                                       proof=self.proof))
 
     def defrag(self, index_list):
         """Defrag some gene"""
