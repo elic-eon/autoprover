@@ -3,6 +3,7 @@
 """
 
 # bench 1000 population: 42.31s user 13.83s system 98% cpu 56.944 total
+import pickle
 from proof import Proof
 from utils import parser
 from utils.tactic import TacticsSet
@@ -40,8 +41,9 @@ def main():
         elif input_list[0] == "show-proof" or input_list[0] == "sp":
             gp_model.show_proofs()
         elif input_list[0] == "n" or input_list[0] == "next":
-            step = int(input_list[1])
-            gp_model.start(gen=step)
+            if input_list[1]:
+                step = int(input_list[1])
+                gp_model.start(gen=step)
         elif input_list[0] == "defrag":
             try:
                 index = int(input_list[1])
@@ -65,6 +67,18 @@ def main():
                 continue
         elif input_list[0] == "stats":
             gp_model.print_stats()
+        elif input_list[0] == "save":
+            if len(input_list) < 2:
+                continue
+            out_file = open(input_list[1], "wb")
+            pickle.dump(gp_model.population, out_file, protocol=pickle.HIGHEST_PROTOCOL)
+            out_file.close()
+        elif input_list[0] == "load":
+            if len(input_list) < 2:
+                continue
+            in_file = open(input_list[1], "rb")
+            gp_model.population = pickle.load(in_file)
+            in_file.close()
         else:
             print("Invaild command")
 
