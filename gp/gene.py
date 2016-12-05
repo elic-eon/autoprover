@@ -40,6 +40,7 @@ class Gene:
         else:
             self.chromosome = random_chromosome(tactics)
         self.fitness = 0
+        self.raw_fitness = 0
         self.coq_states = None
         self.ttl = 0
 
@@ -97,14 +98,14 @@ class Gene:
         if self.is_proof:
             return
 
-        self.fitness = evaluation.calculate_fitness(
+        self.raw_fitness = evaluation.calculate_fitness(
             self.coq_states[proof.offset:])
         if len(self.chromosome) <= 20:
             n_error = 0
         else:
             n_error = len(self.chromosome) - len(self.coq_states)
         # self.fitness += 1 - (n_error / len(self.chromosome)) ** 2
-        self.fitness += 1 - (n_error / len(self.chromosome))
+        self.raw_fitness += 1 - (n_error / len(self.chromosome))
         # print(self.fitness)
         # for state in self.coq_states:
             # print(state)
