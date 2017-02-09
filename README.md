@@ -17,4 +17,4 @@ Example `./autoprover.py theorem/<theorem_name>.v -b tactic_set/<tactics_name>`
 4. Use `show-proof` to check if a proof is found.
 `div3 > show-proof`
 
-5. Repeadt 3, 4.
+5. Repeat 3, 4.
