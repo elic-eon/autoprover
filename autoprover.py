@@ -2,13 +2,12 @@
 """Autoprover
 """
 
-# bench 1000 population: 42.31s user 13.83s system 98% cpu 56.944 total
 import pickle
-from proof import Proof
-from utils import parser
-from utils.tactic import TacticsSet
-from utils.log import reg_logger
-from gp.model import GPModel
+from autoprover.proof import Proof
+from autoprover.utils import parser
+from autoprover.utils.tactic import TacticsSet
+from autoprover.utils.log import reg_logger
+from autoprover.gp.model import GPModel
 
 HELP_MESSAGE = """help(h): Print help message.
 next(n) <step>: Start n generation.
@@ -29,7 +28,7 @@ def main():
     gp_model = GPModel(args=args, proof=proof, tactics=tactics)
     while True:
         try:
-            input_string = input("> ")
+            input_string = input(proof.theorem_name + " > ")
         except EOFError:
             break
 
@@ -79,6 +78,16 @@ def main():
             in_file = open(input_list[1], "rb")
             gp_model.population = pickle.load(in_file)
             in_file.close()
+        elif input_list[0] == "read" or input_list[0] == "r":
+            if len(input_list) < 2:
+                continue
+            gp_model.read_rule_from_file(input_list[1])
+        elif input_list[0] in ["del", "d"]:
+            if len(input_list) < 2:
+                continue
+            gp_model.delete_rule(int(input_list[1]))
+        elif input_list[0] in ["remove", "rm"]:
+            gp_model.remove_tactic()
         else:
             print("Invaild command")
 
