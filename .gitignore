@@ -3,3 +3,4 @@ __pycache__/
 *.glob
 *.vo
 *.tmp
+proof/

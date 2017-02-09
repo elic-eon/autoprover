@@ -1,14 +1,20 @@
 # autoprover
-Example `./autoprover.py <file> -b tactic_base`
+Example `./autoprover.py theorem/<theorem_name>.v -b tactic_set/<tactics_name>`
 
-# Ref
-* [Certified Programming with Dependent Types](http://adam.chlipala.net/cpdt/),
-  a textbook about practical engineering with Coq (Adam Chlipala, 2008)
+## Divisibility rule for 3
 
-# TODO
-* DEBUG information/log
-* Unit test
-* fitness improved
-    * Sum (hypothesis/goal) for now
-* crossover method
-* auto generate tactics set
+1. Run the proof generator.
+`./autoprover.py theorem/div3.v -b tactic_set/div3.txt`
+
+2. Read rules.
+`div3 > read rules/r1.json`
+`div3 > read rules/r2.json`
+`div3 > read rules/r3.json`
+
+3. Evolve population for generations.
+`div3 > n 35`
+
+4. Use `show-proof` to check if a proof is found.
+`div3 > show-proof`
+
+5. Repeadt 3, 4.
