@@ -21,7 +21,8 @@ class GPModel:
     #TODO fix too many args
     def __init__(self, args=None, populationSize=None, maxGeneration=None,
                  mutateRate=None, eliteRate=None, crossRate=None,
-                 crossType=None, verifyNum=None, proof=None, tactics=None):
+                 crossType=None, verifyNum=None, proof=None, tactics=None,
+                 limit_hyp=None, limit_goal=None):
         self.population_size = populationSize or args.populationSize
         self.max_generation = maxGeneration or args.maxGeneration
         self.mutate_rate = mutateRate or args.mutateRate
@@ -29,6 +30,8 @@ class GPModel:
         self.cross_rate = crossRate or args.crossRate
         self.cross_type = crossType or args.crossType
         self.verify_num = verifyNum or args.verifyNum
+        self.limit_hyp = limit_hyp or args.limit_hyp
+        self.limit_goal = limit_goal or args.limit_goal
         self.debug = args.debug
         self.proof = proof
         self.tactics = tactics
@@ -151,7 +154,9 @@ class GPModel:
 
         with Pool(processes=4) as pool:
             for gene in self.population:
-                func, args, kargs = wrapper(gene.update_fitness_for_proof, self.proof)
+                func, args, kargs = wrapper(gene.update_fitness_for_proof,
+                                            self.proof, self.limit_hyp,
+                                            self.limit_goal)
                 pool.apply_async(func(*args, **kargs))
 
     def apply_rules(self):

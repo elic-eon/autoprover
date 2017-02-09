@@ -47,6 +47,14 @@ def get_args():
         type=int, default=50,
         help="number of top proofs to be verified in each generation\
         , default is 50")
+    parser.add_argument(
+        "--limit-hyp", dest='limit_hyp',
+        type=int, default=100,
+        help="default=100")
+    parser.add_argument(
+        "--limit-goal", dest='limit_goal',
+        type=int, default=300,
+        help="default=300")
     parser.add_argument("--debug", dest='debug', action='store_true')
     parser.add_argument(
         "--brute-force", dest='bruteForce', action='store_true')

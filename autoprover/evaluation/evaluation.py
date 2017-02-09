@@ -114,7 +114,7 @@ def split_coqtop_result(result, theorem_name):
     spliter = theorem_name + " <"
     return [spliter+x for x in result.split(spliter)]
 
-def calculate_fitness(coq_states):
+def calculate_fitness(coq_states, limit_hyp=100, limit_goal=300):
     """calculate fitness from coqstates
     score = sum(len(hypothesis)/len(goal))
 
@@ -130,12 +130,12 @@ def calculate_fitness(coq_states):
     for state in coq_states:
         l_hyp = len(state.hypothesis)
         l_goal = len(state.goal)
-        if l_hyp > 100:
-            score -= l_hyp / (l_hyp + 100)
+        if l_hyp > limit_hyp:
+            score -= l_hyp / (l_hyp + limit_hyp)
             print(state.hypothesis)
             continue
-        if l_goal > 10000:
-            score -= l_goal / (l_goal + 200)
+        if l_goal > limit_goal:
+            score -= l_goal / (l_goal + limit_goal)
             # print(state.goal)
             continue
         try:

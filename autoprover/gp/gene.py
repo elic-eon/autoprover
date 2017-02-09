@@ -84,7 +84,7 @@ class Gene:
         """
         return self.coq_states[-1].goal
 
-    def update_fitness_for_proof(self, proof):
+    def update_fitness_for_proof(self, proof, limit_hyp, limit_goal):
         """re-evaluate fitness for a proof
         Args:
             proof (Proof): a Proof instance.
@@ -99,7 +99,9 @@ class Gene:
             return
 
         self.raw_fitness = evaluation.calculate_fitness(
-            self.coq_states[proof.offset:])
+            coq_states=self.coq_states[proof.offset:],
+            limit_hyp=limit_hyp,
+            limit_goal=limit_goal)
         if len(self.chromosome) <= 20:
             n_error = 0
         else:
