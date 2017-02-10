@@ -1,5 +1,5 @@
 # autoprover
-Example `./autoprover.py theorem/<theorem_name>.v -b tactic_set/<tactics_name>`
+Usage: `./autoprover.py theorem/<theorem_name>.v -b tactic_set/<tactics_name>`
 
 Use `./autoprover.py -h` for further information.
 
