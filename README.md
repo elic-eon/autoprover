@@ -3,6 +3,10 @@ Usage: `./autoprover.py theorem/<theorem_name>.v -b tactic_set/<tactics_name>`
 
 Use `./autoprover.py -h` for further information.
 
+## Dependence
+* Coq: 8.5pl3 (December 2016)
+* python: 3.6.0
+
 ## Example: the divisibility rule for 3
 
 1. Run the proof generator.
