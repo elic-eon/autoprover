@@ -1,7 +1,8 @@
 # autoprover
 Example `./autoprover.py theorem/<theorem_name>.v -b tactic_set/<tactics_name>`
+Use `./autoprover.py -h` for further information.
 
-## Divisibility rule for 3
+## Example: the divisibility rule for 3
 
 1. Run the proof generator.
 `./autoprover.py theorem/div3.v -b tactic_set/div3.txt`
